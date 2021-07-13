@@ -34,6 +34,7 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
   bool _visible_CPF = false;
   bool _visible_CNPJ = false;
   bool _visible_SENHA = true;
+  bool _isValid = true;
   final _formKey = GlobalKey<FormState>();
   final controllerCadastro = new CadastroController();
   Dados_usuario Cadastrar_usuario;
@@ -241,7 +242,6 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                 obscureText: false,
                                 maxlenght:35,
                                 labeltext:"E-mail",
-
                                 validator: (value) {
                                   if (value.isEmpty) {
                                     return '*Digite um e-mail.';
@@ -251,6 +251,7 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                   return null;
                                 },
                                 onSaved: (input) => _email = input,
+
                               ),
                               SizedBox(height: 1.0,),
 
@@ -343,6 +344,7 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                     child: CPButton(
                                       text:">> Próxima",
                                       callback:(){
+
 
                                         if (_formKey.currentState.validate()) {
                                           _formKey.currentState.save();

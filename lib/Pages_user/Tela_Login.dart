@@ -122,7 +122,7 @@ class _Tela_LoginState extends State<Tela_Login> {
                   ) ,
                   SizedBox(height:20),
                   CPTextFormField(
-                    // autofocus: true,
+                    textCapitalization: TextCapitalization.none,
                     type: TextInputType.emailAddress,
                     obscureText: false,
                     maxlenght:35,

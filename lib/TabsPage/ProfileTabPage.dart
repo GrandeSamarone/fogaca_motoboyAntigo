@@ -3,38 +3,32 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:fogaca_app/Notificacao/PushNotificacao.dart';
-import 'package:fogaca_app/Providers/Firestore_Dados.dart';
-import 'package:fogaca_app/Providers/Prov_Thema_black_light.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:fogaca_app/Controllers/AtualizarDadosUsuarioController.dart';
+import 'package:fogaca_app/Store/StoreDadosUsuario.dart';
 import 'package:fogaca_app/Widget/Toast.dart';
+
 import 'package:image_picker/image_picker.dart';
+import 'package:mobx/mobx.dart';
 import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ProfileTabePage extends StatefulWidget {
-  static const String idScreen = "Page_Perfil";
+import '../Page/Mapa_Home.dart';
 
-  ProfileTabePageState createState() => ProfileTabePageState();
+class ProfileTabPage extends StatefulWidget {
+
+  ProfileTabPageState createState() => ProfileTabPageState();
 
 }
 
-class ProfileTabePageState extends State<ProfileTabePage> with AutomaticKeepAliveClientMixin {
-  TextEditingController _alterarNome = TextEditingController();
-  TextEditingController _alterarCity = TextEditingController();
-  TextEditingController _alterarTelefone = TextEditingController();
-  TextEditingController _alterarModelo = TextEditingController();
-  TextEditingController _alterarPlaca = TextEditingController();
-  TextEditingController _alterarCor = TextEditingController();
-  PushNotificacao pushNotificacao= PushNotificacao();
-  File _imagem;
+class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveClientMixin {
+
+  final controller = new AtualizarDadosUsuarioController();
   String _idUsuarioLogado;
-  bool _subindoImagem = false;
-  String _urlImagemRecuperada="";
-  ThemeChanger themeChanger;
-  String dropdownValue="Ji-Paraná";
+  String dropdownValue = 'Selecione uma cidade';
   List <String> spinnerItems = [
-    'Selecione a cidade',
+    'Selecione uma cidade',
     'Ji-Paraná',
     'Ouro Preto',
     'Jaru',
@@ -42,416 +36,366 @@ class ProfileTabePageState extends State<ProfileTabePage> with AutomaticKeepAliv
     'Cacoal',
     'Médici',
   ];
-  Future<void> _pickerImage() async {
-    final _picker = ImagePicker();
-    var imagemSelecionada;
-
-    imagemSelecionada = (await _picker.getImage(
-        source: ImageSource.gallery,
-        imageQuality:100,
-        maxWidth:400));
-
-
-    setState(() {
-      if (imagemSelecionada != null) {
-        _subindoImagem = true;
-        _imagem = File(imagemSelecionada.path);
-        _uploadImagem();
-      } else {
-        print('No image selected.');
-      }
-    });
-  }
-  Future _uploadImagem() async {
-
-    ProgressDialog progressDialog = ProgressDialog(context,
-      title:Text("Carregando imagem"),
-      message:Text("Por favor,aguarde..."),);
-    progressDialog.setLoadingWidget(CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.redAccent)));
-    progressDialog.show();
-
-    var file = File(_imagem.path);
-
-    FirebaseStorage storage = FirebaseStorage.instance;
-    Reference pastaRaiz = storage.ref();
-    Reference arquivo = pastaRaiz
-        .child("perfil")
-        .child(_idUsuarioLogado + ".jpg");
-
-    //Upload da imagem
-    UploadTask task = arquivo.putFile(file);
-
-    task.snapshotEvents.listen((TaskSnapshot storageEvent) {
-      if (storageEvent.state == TaskState.running) {
-        setState(() {
-          progressDialog.show();
-          _subindoImagem = true;
-        });
-      } else if (storageEvent.state == TaskState.success) {
-        progressDialog.dismiss();
-        _subindoImagem = false;
-        ToastMensagem(
-            "Imagem carregada com sucesso.", context);
-      }
-    });
-
-    //Recuperar URL da imagem
-    task.then((TaskSnapshot taskSnapshot) {
-      _recuperarUrlImagem(taskSnapshot);
-    });
-  }
-
-  Future _recuperarUrlImagem(TaskSnapshot snapshot) async {
-    String url = await snapshot.ref.getDownloadURL();
-    _atualizarUrlImagemFirestore(url);
-    setState(() {
-      _urlImagemRecuperada = url;
-
-    });
-  }
-
-  _atualizarDadosFirestore(){
-
-    String nome = _alterarNome.text;
-    String telefone = _alterarTelefone.text;
-    String modelo = _alterarModelo.text;
-    String cor = _alterarCor.text;
-    String placa = _alterarPlaca.text;
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    String codcity;
-    if(dropdownValue=="Ji-Paraná"){
-      codcity="jipa";
-    }else if(dropdownValue=="Ouro Preto"){
-      codcity="ouropreto";
-    }else if(dropdownValue=="Jaru"){
-      codcity="jaru";
-    }else if(dropdownValue=="Ariquemes"){
-      codcity="ariquemes";
-    }else if(dropdownValue=="Cacoal"){
-      codcity="cacoal";
-    }else if(dropdownValue=="Médici"){
-      codcity="medici";
-    }
-    Map<String, dynamic> dadosAtualizar = {
-      "nome" : nome,
-      "telefone" : telefone,
-      "modelo" : modelo,
-      "cor" : cor,
-      "placa" : placa,
-      "cidade" : dropdownValue,
-      "cod" : codcity,
-    };
-
-    db.collection("user_motoboy")
-        .doc(_idUsuarioLogado)
-        .update( dadosAtualizar );
-    ToastMensagem("Dados Atualizado com Sucesso!", context);
-  }
-
-  _atualizarUrlImagemFirestore(String url){
-
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    Map<String, dynamic> dadosAtualizar = {
-      "icon_foto" : url
-    };
-
-    db.collection("user_motoboy")
-        .doc(_idUsuarioLogado)
-        .update( dadosAtualizar );
-
-  }
-
-  _recuperarDadosUsuario() async {
-
-    FirebaseAuth auth = FirebaseAuth.instance;
-    User usuarioLogado = await auth.currentUser;
-    _idUsuarioLogado = usuarioLogado.uid;
-
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    DocumentSnapshot snapshot = await db.collection("user_motoboy")
-        .doc( _idUsuarioLogado )
-        .get();
-
-    Map<String, dynamic> dados = snapshot.data();
-    _alterarNome.text = dados["nome"];
-    _alterarTelefone.text = dados["telefone"];
-    _alterarModelo.text = dados["modelo"];
-    _alterarCor.text = dados["cor"];
-    _alterarPlaca.text = dados["placa"];
-    _alterarCity.text=dados["cidade"];
-    dropdownValue=dados["cidade"];
-    if( dados["icon_foto"] != "" ){
-      setState(() {
-        _urlImagemRecuperada = dados["icon_foto"];
-      });
-
-    }
-    print("URL DA IMAGEM DO BANCO::");
-    print( _urlImagemRecuperada);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _recuperarDadosUsuario();
-
-  }
 
   @override
   Widget build(BuildContext context) {
-    themeChanger = Provider.of<ThemeChanger>(context, listen: false);
-    String url="https://firebasestorage.googleapis.com/v0/b/fogaca-app.appspot.com/o/perfil%2Ftestnimial.png?alt=media&token=343acf84-2f78-4c13-8631-7a5fc7bec90f";
+    final store=Provider.of<StoreDadosUsuario>(context);
+    _idUsuarioLogado=store.id;
+    dropdownValue=store.city;
 
-    final dados_provider=Provider.of<Dados_usuario>(context);
-    return Scaffold(
-      body: Container(
-        padding: EdgeInsets.only(top: 30),
-        child: Center(
-          child: SingleChildScrollView(
+    return
+     Scaffold(
+        body: SingleChildScrollView(
+          physics: NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.only(
+              left: 10,
+               right:10,
+               bottom: 10,
+               top:30
+          ),
+          child: Container(
             child: Column(
               children: <Widget>[
-                ClipOval(
-                  child: Image.network(
-                    _urlImagemRecuperada!=""?_urlImagemRecuperada:url,
-                    width: 80,
-                    height: 80,
-                    fit: BoxFit.cover,
+                Observer(builder: (_){
+                  return
+                    CircleAvatar(
+                        radius: 80,
+                        backgroundColor: Colors.grey,
+                        backgroundImage: store.foto != null
+                            ? NetworkImage(store.foto)
+                            : null
+
+                    );
+                },),
+
+                TextButton.icon(
+                  icon: Icon(Icons.image, color: Colors.redAccent),
+                  label: Text(
+                    'Adicionar imagem',
+                    style: TextStyle(color: Colors.redAccent),
                   ),
+                  onPressed:(){
+                    EnviarImagem(_idUsuarioLogado);
+                    // controller.pickerImage();
+                  },
                 ),
 
+
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Nome:",
+                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color, fontSize: 11,fontFamily:  "Brand Bold"),),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
+                    Observer(builder: (_){
+                      return
+                        Text(
+                          store.nome!=null?store.nome:"",
+                          style: TextStyle(fontSize: 16.0),
+                          textAlign: TextAlign.center,
+                        );
+                    },),
                     TextButton.icon(
-                      icon: Icon(Icons.image, color: Colors.redAccent),
+                      icon: Icon(Icons.edit, color: Colors.redAccent),
                       label: Text(
-                        'Adicionar imagem',
+                        '',
                         style: TextStyle(color: Colors.redAccent),
                       ),
-                      onPressed: _pickerImage,
+                      onPressed: (){
+                        DialogOpcao("Nome",store.nome,TextInputType.text);
+                      },
                     )
                   ],
                 ),
-                ListTile(
-                  leading: Icon(Icons.wb_incandescent_outlined),
-                  title: Text(
-                    "Modo Escuro",
-                    style: TextStyle(fontSize: 15.0),
-                  ),
-                  trailing: Switch(
-                    activeColor: Theme
-                        .of(context)
-                        .accentColor,
-                    inactiveThumbColor: Theme
-                        .of(context)
-                        .primaryColor,
-                    value: themeChanger.isDark(),
-                    onChanged: (status) {
-                      themeChanger.setDarkStatus(status);
+                Divider(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-                    },
+                    Text("Email:",
+                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color, fontSize: 11,fontFamily:  "Brand Bold"),),
 
-                  ),
+                  ],
                 ),
-                DropdownButton<String>(
-                  value: dropdownValue,
-                  icon: Icon(Icons.arrow_drop_down),
-                  iconSize: 24,
-                  elevation: 16,
-                  style: TextStyle(color: Theme.of(context).textTheme.headline4.color, fontSize: 18,fontFamily:  "Brand Bold"),
-                  underline: Container(
-                    height: 2,
-                    color: Theme.of(context).textTheme.headline4.color,
-                  ),
-                  onChanged: (String data) {
-                    setState(() {
-                      dropdownValue = data;
-                    });
-                  },
-                  items: spinnerItems.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      store.email!=null?store.email:"",
+                      style: TextStyle(fontSize: 16.0,color: Colors.grey),
+                    ),
+
+                  ],
+                ),
+                Divider(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    Text("Cpf/Cnpj:",
+                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color, fontSize: 11,fontFamily:  "Brand Bold"),),
+
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      store.cpf_cnpj!=null?store.cpf_cnpj:"",
+                      style: TextStyle(fontSize: 16.0,color: Colors.grey),
+                    ),
+
+                  ],
                 ),
 
-                Padding(
-                  padding: EdgeInsets.only(bottom: 2),
+                Divider(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
-                  child: TextField(
-                    //  maxLengthEnforced:true,
-                    maxLength:25,
-                    textAlign: TextAlign.center,
-                    controller: _alterarNome,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        labelText: "Nome",
-                        labelStyle: TextStyle(
-                          fontSize: 14.0,
-                        ),
-                        hintStyle: TextStyle(
-                          color: Theme.of(context).textTheme.subtitle1.color,
-                          fontSize: 10.0,
-                        )),
-                    onChanged:(value){
-                      dados_provider.alterarNome(value);
-                    },
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                ),  Padding(
-                  padding: EdgeInsets.only(bottom: 2),
+                    Text("Telefone:",
+                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color, fontSize: 11,fontFamily:  "Brand Bold"),),
 
-                  child: TextField(
-                    enabled: false,
-                    textAlign: TextAlign.center,
-                    controller: _alterarCity,
-                    decoration: InputDecoration(
-                        labelText: "Cidade",
-                        labelStyle: TextStyle(
-                          fontSize: 14.0,
-
-                        ),
-                        hintStyle: TextStyle(
-
-                          fontSize: 10.0,
-                        )),
-                    onChanged:(value){
-                    },
-                    style: TextStyle(fontSize: 16.0,color: Colors.grey),
-                  ),
-                ),   Padding(
-                  padding: EdgeInsets.only(bottom: 2),
-                  child: TextField(
-                    //  maxLengthEnforced:true,
-                    maxLength:25,
-                    textAlign: TextAlign.center,
-                    controller: _alterarTelefone,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        labelText: "Telefone",
-                        labelStyle: TextStyle(
-                          fontSize: 14.0,
-                        ),
-                        hintStyle: TextStyle(
-                          color: Theme.of(context).textTheme.subtitle1.color,
-                          fontSize: 10.0,
-                        )),
-                    onChanged:(value){
-                      dados_provider.alterarNome(value);
-                    },
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                ),  Padding(
-                  padding: EdgeInsets.only(bottom: 2),
-                  child: TextField(
-                    //  maxLengthEnforced:true,
-                    maxLength:25,
-                    textAlign: TextAlign.center,
-                    controller: _alterarModelo,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        labelText: "Modelo",
-                        labelStyle: TextStyle(
-                          fontSize: 14.0,
-                        ),
-                        hintStyle: TextStyle(
-                          color: Theme.of(context).textTheme.subtitle1.color,
-                          fontSize: 10.0,
-                        )),
-                    onChanged:(value){
-                      dados_provider.alterarNome(value);
-                    },
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                ),  Padding(
-                  padding: EdgeInsets.only(bottom: 2),
-                  child: TextField(
-                    //  maxLengthEnforced:true,
-                    maxLength:25,
-                    textAlign: TextAlign.center,
-                    controller: _alterarCor,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        labelText: "Cor",
-                        labelStyle: TextStyle(
-                          fontSize: 14.0,
-                        ),
-                        hintStyle: TextStyle(
-                          color: Theme.of(context).textTheme.subtitle1.color,
-                          fontSize: 10.0,
-                        )),
-                    onChanged:(value){
-                      dados_provider.alterarNome(value);
-                    },
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                ),  Padding(
-                  padding: EdgeInsets.only(bottom: 2),
-                  child: TextField(
-                    //  maxLengthEnforced:true,
-                    maxLength:25,
-                    textAlign: TextAlign.center,
-                    controller: _alterarPlaca,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        labelText: "Placa",
-                        labelStyle: TextStyle(
-                          fontSize: 14.0,
-                        ),
-                        hintStyle: TextStyle(
-                          color: Theme.of(context).textTheme.subtitle1.color,
-                          fontSize: 10.0,
-                        )),
-                    onChanged:(value){
-                      dados_provider.alterarNome(value);
-                    },
-                    style: TextStyle(fontSize: 16.0),
-                  ),
+                  ],
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 4, bottom: 10),
-                  child: ElevatedButton(
-                      child: Text('Atualizar dados'),
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.red[900],
-                        //  onPrimary: Colors.white,
-                        onSurface: Colors.grey,
-                        shape: const BeveledRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5))),
-
-                        textStyle: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 18,
-                            fontFamily: "Brand Bold"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Observer(builder: (_){
+                      return
+                        Text(
+                          store.telefone!=null?store.telefone:"",
+                          style: TextStyle(fontSize: 16.0),
+                        );
+                    },),
+                    TextButton.icon(
+                      icon: Icon(Icons.edit, color: Colors.redAccent),
+                      label: Text(
+                        '',
+                        style: TextStyle(color: Colors.redAccent),
                       ),
-                      onPressed:(){
-                        _atualizarDadosFirestore();
-                      }
-                    // _atualizarNomeFirestore,
-
-                  ),
+                      onPressed: (){
+                        DialogOpcao("Telefone",store.telefone,TextInputType.number);
+                      },
+                    )
+                  ],
                 ),
+                Divider(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    Text("Local de trabalho",
+                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color, fontSize: 11,fontFamily:  "Brand Bold"),),
+
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Observer(builder: (_){
+                      return
+                        Text(
+                          store.city!=null?store.city:"",
+                          style: TextStyle(fontSize: 16.0),
+                        );
+                    },),
+
+                    TextButton.icon(
+                      icon: Icon(Icons.edit, color: Colors.redAccent),
+                      label: Text(
+                        '',
+                        style: TextStyle(color: Colors.redAccent),
+                      ),
+                      onPressed: (){
+                        dialogCity(context);
+                      },
+                    ),
+                  ],
+                ),
+                Divider(),
               ],
             ),
           ),
         ),
-      ),
-
     );
 
   }
-  _launchWhatsapp() async {
-    const url = "https://api.whatsapp.com/send?phone=556992417580&text=ol%C3%A1";
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
+
+  void DialogOpcao(String text,String dados,TextInputType type){
+    String dadosAlterado;
+    showDialog(
+        context: context,
+        builder: (_){
+          return  AlertDialog(
+            title: Text("Alterar ${text}"),
+            content: TextField(
+              keyboardType:type,
+              decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: dados
+              ),
+              onChanged:(String valor){
+                dadosAlterado=valor;
+              },
+            ),
+            actions: [
+              TextButton(
+                  onPressed: ()
+                  {
+                    Navigator.pop(context);
+                  },
+                  child: Text("Cancelar", style: TextStyle(
+                      color: Colors.red
+                  ),)
+              ),
+              TextButton(
+                  onPressed: (){
+                    AlterarDados(text,dadosAlterado,_idUsuarioLogado);
+                    Navigator.pop(context);
+                  },
+                  child: Text("Salvar")
+              )
+            ],
+          );
+        }
+    );
   }
 
+  void dialogCity(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return AlertDialog(
+                  title: Text("Deseja realmente alterar?"),
+                  actions: <Widget>[
+                    Container(
+                      width: double.infinity,
+                      child: Column(
+                        children: <Widget>[
+                          DropdownButton<String>(
+                            isExpanded: true,
+                            value: dropdownValue,
+                            icon: Icon(Icons.arrow_drop_down),
+                            iconSize: 24,
+                            elevation: 16,
+                            style: TextStyle(color: Theme.of(context).textTheme.headline4.color, fontSize: 18,fontFamily:  "Brand-Bold"),
+                            underline: Container(
+                              height: 2,
+                              color: Theme.of(context).textTheme.headline4.color,
+                            ),
+                            onChanged: (String data) {
+                              setState(() {
+                                dropdownValue=data;
+                              });
+                            },
+                            items: spinnerItems.map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Center(
+                                  child: Text(
+                                    value,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton(
+                                  onPressed: (){
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text("Cancelar")
+                              ),
+                              TextButton(
+                                  onPressed: (){
+                                    // AlterarCidade(dropdownValue);
+                                    Alterarcity(dropdownValue,_idUsuarioLogado);
+
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text("Salvar")
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                );
+              });
+        });
+
+  }
+
+  //Açao do botao EnviarImagem
+  EnviarImagem(String id){
+    setState(() {
+    });
+
+    controller.pickerImage(id).then((data) {
+
+      print("Retorno!!!"+data.toString());
+
+      ToastMensagem("Carregando...", context);
+    }).catchError((err){
+      print("ERROR!!!"+err.toString());
+    }).whenComplete(() {
+    });
+  }
+
+
+
+  //Açao do dialog alterardados
+  AlterarDados(String text,String dadosalterado,String id){
+    controller.AlterarDados(text,dadosalterado,id).then((data) {
+
+      print("Retorno!!!"+data.toString());
+
+      ToastMensagem(data.toString(),context);
+    }).catchError((err){
+      print("ERRO:!!!"+err.toString());
+      ToastMensagem("Erro:${err.toString()}", context);
+    }).whenComplete(() {
+    });
+  }
+
+  //Açao do botao Alterar cidade
+  Alterarcity(String text,String id){
+
+    controller.AlterarCity(text,id).then((data) {
+
+      print("Retorno!!!"+data.toString());
+
+      ToastMensagem(data.toString(),context);
+    }).catchError((err){
+      print("ERROR!!!"+err.toString());
+      ToastMensagem("Erro:${err.toString()}", context);
+    }).whenComplete(() {
+    });
+  }
+
+
+  void _moveToSignInScreen(BuildContext context) =>
+      //Navigator.pushNamedAndRemoveUntil(context, Mapa_Home.idScreen, (route) => false);
+  Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => Mapa_Home()));
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
 
+
 }
+
+

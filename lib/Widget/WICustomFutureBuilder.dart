@@ -10,20 +10,20 @@ class WICustomFutureBuilder<T> extends StatelessWidget {
   String colletion;
  String estado;
  String msgvazio;
+ String id_usuario;
   WICustomFutureBuilder({
     this.colletion,
    this.estado,
-   this.msgvazio
+   this.msgvazio,
+    this.id_usuario
 });
 
 
   @override
   Widget build(BuildContext context) {
 
-    FirebaseAuth auth = FirebaseAuth.instance;
-    User usuarioLogado =  auth.currentUser;
     Query users = FirebaseFirestore.instance.collection(colletion)
-        .where('id_usuario',isEqualTo:usuarioLogado.uid)
+        .where('id_usuario',isEqualTo:id_usuario)
         .where("estado",isEqualTo:estado);
 
     return StreamBuilder <QuerySnapshot>(

@@ -70,6 +70,7 @@ class CadastroController{
            dados["telefone"]=motoboy.telefone;
            dados["email"]=motoboy.email;
            dados["token"]=token;
+           dados["estrela"]="5.0";
            dados["cidade"]=motoboy.cidade;
            dados["cod"]=codcity;
            dados["estado"]="Rondônia";

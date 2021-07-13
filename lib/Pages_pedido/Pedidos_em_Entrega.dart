@@ -5,10 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:fogaca_app/Model/Pedido.dart';
 import 'package:fogaca_app/Notificacao/NotificacaoDialog.dart';
 import 'package:fogaca_app/Notificacao/PushNotificacao.dart';
+import 'package:fogaca_app/Widget/WICustomFutureBuilder.dart';
 import 'Tela_Passeio.dart';
 import 'package:fogaca_app/Providers/Firestore_Dados.dart';
-import 'package:fogaca_app/Widget/HistoricoCarregando.dart';
-import 'package:fogaca_app/Widget/HistoricoItem.dart';
 import 'package:fogaca_app/Widget/PedidoItem.dart';
 import 'package:fogaca_app/Widget/Toast.dart';
 import 'package:provider/provider.dart';
@@ -33,52 +32,32 @@ class Pedidos_em_EntregaState extends State<Pedidos_em_Entrega> {
     //pushNotificacao.initialize(context);
     FirebaseAuth auth = FirebaseAuth.instance;
     User usuarioLogado =  auth.currentUser;
-    Query users = FirebaseFirestore.instance.collection('Pedidos')
-        .where('boy_id',isEqualTo:usuarioLogado.uid)
-        .where("estado",isEqualTo:"Aberto");
-
     return  WillPopScope(
-        onWillPop: () {
-          _moveToSignInScreen(context);
-        },
-        child:Scaffold(
-            appBar: new AppBar(
-              leading: IconButton(icon: Icon(Icons.arrow_back),
-                tooltip: "",
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Mapa_Home()));
-                },
-              ),
-              title: new Text(
-                  "Minhas Entregas"
-              ),
-            ),
-            body:StreamBuilder<QuerySnapshot>(
-              stream: users.snapshots(),
-              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.hasError) {
-                  return Text('erro');
-                }
-
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return  HistoricoCarregando();
-                }
-
-                return new ListView(
-                    children: <Widget>[
-                      Column(
-                        children: snapshot.data.docs.map((DocumentSnapshot document) {
-                          return PedidoItem(pedido:document.data());
-                        }).toList(),
-                      )
-                    ]
-                );
-              },
-            )
-        )
+      onWillPop: () {
+        _moveToSignInScreen(context);
+      },
+      child:Scaffold(
+        appBar: new AppBar(
+          leading: IconButton(icon: Icon(Icons.arrow_back),
+            tooltip: "",
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Mapa_Home()));
+            },
+          ),
+          title: new Text(
+              "Pedidos para entregar"
+          ),
+        ),
+        body:WICustomFutureBuilder(
+            colletion: "Pedidos",
+            estado:"Aberto",
+            msgvazio: "Nenhum pedido encontrado.",
+            id_usuario: usuarioLogado.uid
+        ),
+      ),
     );
   }
 

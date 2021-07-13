@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 import 'Page/Mapa_Home.dart';
 import 'Page/SplashScreen.dart';
 import 'Pages_user/Tela_Cadastro.dart';
+import 'Store/StoreDadosUsuario.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
@@ -69,6 +70,9 @@ void main()async {
   runApp(
     MultiProvider(
         providers: [
+          Provider<StoreDadosUsuario>(
+            create:(_)=>StoreDadosUsuario(),
+          ),
           ChangeNotifierProvider<ThemeChanger>(
             create:(_)=>ThemeChanger(),
           ),  ChangeNotifierProvider<Dados_usuario>(

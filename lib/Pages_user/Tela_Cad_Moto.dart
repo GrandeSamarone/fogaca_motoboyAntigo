@@ -43,6 +43,15 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
   Widget build(BuildContext context) {
 
     return Scaffold(
+      appBar:AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back,
+              color: Colors.red[900]),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        backgroundColor:Colors.white.withOpacity(0),
+        elevation: 0,
+      ),
       body:SafeArea(
         child: SingleChildScrollView(
           child:Column(
