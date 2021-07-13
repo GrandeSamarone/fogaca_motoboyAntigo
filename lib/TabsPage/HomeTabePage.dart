@@ -44,7 +44,7 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
   final FirebaseMessaging firebaseMessaging=FirebaseMessaging.instance;
   var geolocator = Geolocator();
   Dados_usuario DadosMotoboy;
-  PushNotificacao pushNotificacao= PushNotificacao();
+
   Position posicao_atual;
   Dados_usuario Dados_Usuario;
   String textButton="FICAR ONLINE";
@@ -55,6 +55,7 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
   String _N_Pedidos;
   ThemeChanger themeChanger;
   StoreDadosUsuario controllerDadosUsuario;
+
 
   void locatePosition() async {
     posicao_atual = await geolocator.getCurrentPosition(
@@ -122,7 +123,6 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
     themeChanger = Provider.of<ThemeChanger>(context, listen: false);
     VerificarLocalizacao();
     DadosMotoboy=Provider.of<Dados_usuario>(context);
-
 
 
     // TODO: implement build
@@ -323,7 +323,8 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
         Geofire.stopListener();
         Atualizar_Online_Offline(false);
         DeletarLocMotoboyDatabase();
-
+        MethodChannel serviceChannel = MethodChannel("motoboy");
+        serviceChannel.invokeMethod("stopService");
       }else{
         ServiceStatus serviceStatus = await Permission.location.serviceStatus;
         _localizacaoAtiva = (serviceStatus == ServiceStatus.enabled);
@@ -333,7 +334,8 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
           ToastMensagem("Buscando...", context);
           makeDriveOnlineNow();
           getLocationLiveUpdates();
-
+          MethodChannel serviceChannel = MethodChannel("motoboy");
+          serviceChannel.invokeMethod("startService");
 
         }else{
           ToastMensagem("Ative seu GPS antes de começar a aceitar pedidos.", context);

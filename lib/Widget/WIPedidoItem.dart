@@ -26,14 +26,14 @@ class WIPedidoItem extends StatelessWidget
             ListTile(
         leading:  ClipOval(
           child:Image.network(
-          pedido["boy_foto"]!=""?
-        pedido["boy_foto"]:url,
+          pedido["icon_loja"]!=""?
+        pedido["icon_loja"]:url,
           width: 50,
           height: 50,
           fit: BoxFit.cover,),),
 
       title: new Text(
-        pedido["boy_nome"],
+        pedido["nome_ponto"],
         style: new TextStyle(fontSize: 14.0),
       ),
       subtitle: new Column(
@@ -44,7 +44,7 @@ class WIPedidoItem extends StatelessWidget
                 style: new TextStyle(
                     fontSize: 13.0,
                     color: ColorButton)),
-            new Text(pedido["boy_moto_modelo"]+","+pedido["boy_moto_cor"]+","+pedido["boy_moto_placa"],
+            new Text(pedido["end_ponto"],
                 style: new TextStyle(
                     fontSize: 13.0)),
             new Text('Quantidade: ${pedido["quant_itens"]}',

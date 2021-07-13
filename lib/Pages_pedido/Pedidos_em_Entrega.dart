@@ -48,7 +48,7 @@ class Pedidos_em_EntregaState extends State<Pedidos_em_Entrega> {
             },
           ),
           title: new Text(
-              "Pedidos para entregar"
+              "Pedidos para entrega"
           ),
         ),
         body:WICustomFutureBuilder(

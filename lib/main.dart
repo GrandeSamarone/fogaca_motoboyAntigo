@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -21,8 +24,19 @@ import 'Pages_user/Tela_Cadastro.dart';
 import 'Store/StoreDadosUsuario.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("Handling a background message: ${message.messageId}");
-  await Firebase.initializeApp();
+  RawDatagramSocket.bind(InternetAddress.anyIPv4, 0)
+      .then((RawDatagramSocket socket) {
+    Map<String, dynamic> map = Map();
+    map['lat_ponto'] =message.data["lat_ponto"];
+    map['long_ponto'] =message.data["long_ponto"];
+    map['end_ponto'] =message.data["end_ponto"];
+    map['nome_ponto'] =message.data["nome_ponto"];
+    map['quant_itens'] =message.data["quant_itens"];
+    map['telefone'] =message.data["telefone"];
+    map['id_doc'] =message.data["id_doc"];
+    socket.send(Uint8List.fromList(jsonEncode(map).codeUnits),
+        InternetAddress("127.0.0.1"), 3306);
+  });
 }
 
 AndroidNotificationChannel channel;
@@ -31,7 +45,7 @@ FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 void main()async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   channel = const AndroidNotificationChannel(
@@ -92,10 +106,10 @@ void main()async {
 }
 
 class MyApp extends StatelessWidget{
-
+  PushNotificacao pushNotificacao = PushNotificacao();
   @override
   Widget build(BuildContext context) {
-
+    pushNotificacao.initialize(context);
     // TODO: implement build
     bool darkThemeEnabled=Provider.of<ThemeChanger>(context).isDark();
     return MaterialApp(

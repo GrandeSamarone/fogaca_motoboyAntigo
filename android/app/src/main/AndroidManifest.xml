@@ -17,7 +17,7 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            android:theme="@style/LaunchTheme">
 
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />

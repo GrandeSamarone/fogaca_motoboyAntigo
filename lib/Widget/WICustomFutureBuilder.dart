@@ -23,7 +23,7 @@ class WICustomFutureBuilder<T> extends StatelessWidget {
   Widget build(BuildContext context) {
 
     Query users = FirebaseFirestore.instance.collection(colletion)
-        .where('id_usuario',isEqualTo:id_usuario)
+        .where('boy_id',isEqualTo:id_usuario)
         .where("estado",isEqualTo:estado);
 
     return StreamBuilder <QuerySnapshot>(

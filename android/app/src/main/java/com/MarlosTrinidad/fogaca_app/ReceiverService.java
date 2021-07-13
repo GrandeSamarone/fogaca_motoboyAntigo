@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import static com.github.florent37.assets_audio_player.notification.NotificationService.CHANNEL_ID;
 
 public class ReceiverService extends Service {
     DatagramSocket server;
@@ -38,7 +39,7 @@ public class ReceiverService extends Service {
     byte[] receiveData = new byte[4024];
 
     WindowManager wm;
-    TextView title, subtitle;
+    TextView nome_lojista, end_lojista,quant_itens;
     LinearLayout lm;
     WindowManager.LayoutParams lp;
     MediaPlayer mp;
@@ -74,11 +75,13 @@ public class ReceiverService extends Service {
 
         lp.gravity = Gravity.CENTER;
 
-        title = lm.findViewById(R.id.title);
-        subtitle = lm.findViewById(R.id.subtitle);
-        lm.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
+        nome_lojista = lm.findViewById(R.id.nome_loja);
+        end_lojista = lm.findViewById(R.id.endereco_loja);
+        quant_itens = lm.findViewById(R.id.quantitens_loja);
+        lm.findViewById(R.id.button_aceitar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 wm.removeView(lm);
             }
         });
@@ -98,8 +101,9 @@ public class ReceiverService extends Service {
                             String data = new String(packet.getData(), "utf8");
                             JSONObject json = new JSONObject(data );
 
-                            title.setText(json.getString("title"));
-                            subtitle.setText(json.getString("subtitle"));
+                            nome_lojista.setText(json.getString("nome_ponto"));
+                            end_lojista.setText(json.getString("end_ponto"));
+                            quant_itens.setText(json.getString("quant_itens"));
                             hand.post(() -> {
                                 wm.addView(lm, lp);
                                 playSong();
@@ -142,14 +146,28 @@ public class ReceiverService extends Service {
         assert manager != null;
         manager.createNotificationChannel(chan);
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
-        Notification notification = notificationBuilder.setOngoing(true)
-                .setSmallIcon(R.drawable.launch_background)
-                .setContentTitle("Voçê está online")
-                .setPriority(NotificationManager.IMPORTANCE_MIN)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .build();
-        startForeground(2, notification);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+            Notification notification = notificationBuilder.setOngoing(true)
+                    .setSmallIcon(R.drawable.icon_semfundo)
+                     .setColor(getResources().getColor(R.color.pretoclaro))
+                    .setContentTitle("Voçê está online")
+                    .setPriority(NotificationManager.IMPORTANCE_MIN)
+                    .setCategory(Notification.CATEGORY_SERVICE)
+                    .build();
+            startForeground(2, notification);
+        } else {
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
+            Notification notification = notificationBuilder.setOngoing(true)
+                    .setSmallIcon(R.drawable.icon_semfundo)
+                    .setContentTitle("Voçê está online")
+                    .setPriority(NotificationManager.IMPORTANCE_MIN)
+                    .setCategory(Notification.CATEGORY_SERVICE)
+                    .build();
+            startForeground(2, notification);
+
+        }
+
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
