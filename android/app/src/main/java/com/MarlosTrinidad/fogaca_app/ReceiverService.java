@@ -22,15 +22,25 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import org.json.JSONObject;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
+
 import static com.github.florent37.assets_audio_player.notification.NotificationService.CHANNEL_ID;
+import static io.flutter.plugins.firebase.auth.Constants.TAG;
 
 public class ReceiverService extends Service {
     DatagramSocket server;
@@ -40,10 +50,11 @@ public class ReceiverService extends Service {
 
     WindowManager wm;
     TextView nome_lojista, end_lojista,quant_itens;
+    String id_doc;
     LinearLayout lm;
     WindowManager.LayoutParams lp;
     MediaPlayer mp;
-
+    private final FirebaseFirestore db=FirebaseFirestore.getInstance();
     public ReceiverService() {
 
     }
@@ -78,11 +89,13 @@ public class ReceiverService extends Service {
         nome_lojista = lm.findViewById(R.id.nome_loja);
         end_lojista = lm.findViewById(R.id.endereco_loja);
         quant_itens = lm.findViewById(R.id.quantitens_loja);
+
         lm.findViewById(R.id.button_aceitar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 wm.removeView(lm);
+                mp.release();
             }
         });
 
@@ -100,10 +113,11 @@ public class ReceiverService extends Service {
                             server.receive(packet);
                             String data = new String(packet.getData(), "utf8");
                             JSONObject json = new JSONObject(data );
-
+                            Log.i("Erro::",json.getString("nome_ponto"));
                             nome_lojista.setText(json.getString("nome_ponto"));
                             end_lojista.setText(json.getString("end_ponto"));
                             quant_itens.setText(json.getString("quant_itens"));
+                            id_doc=(json.getString("id_doc"));
                             hand.post(() -> {
                                 wm.addView(lm, lp);
                                 playSong();
@@ -120,6 +134,7 @@ public class ReceiverService extends Service {
                 }
             }
         }.start();
+
     }
 
     public void playSong(){
@@ -129,9 +144,10 @@ public class ReceiverService extends Service {
             mp.setDataSource(song.getFileDescriptor(), song.getStartOffset(), song.getLength());
             mp.prepare();
             mp.start();
+            mp.isLooping();
         }catch (Exception e){
 
-
+            Log.i("Erro::",e.toString());
         }
     }
 
@@ -187,5 +203,27 @@ public class ReceiverService extends Service {
     public void onDestroy() {
         super.onDestroy();
         mp.release();
+
+    }
+    public void VerificarPedido(){
+        final DocumentReference docRef = db.collection("Pedidos").document(id_doc);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+
+                    Log.d(TAG, "Current data: " + snapshot.getData());
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
+
     }
 }

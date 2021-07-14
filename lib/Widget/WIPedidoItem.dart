@@ -33,21 +33,21 @@ class WIPedidoItem extends StatelessWidget
           fit: BoxFit.cover,),),
 
       title: new Text(
-        pedido["nome_ponto"],
+        pedido["nome_ponto"]!=null?pedido["nome_ponto"]:"",
         style: new TextStyle(fontSize: 14.0),
       ),
       subtitle: new Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            new Text(pedido["situacao"],
+            new Text(pedido["situacao"]!=null?pedido["situacao"]:"",
                 style: new TextStyle(
                     fontSize: 13.0,
                     color: ColorButton)),
-            new Text(pedido["end_ponto"],
+            new Text(pedido["end_ponto"]!=null?pedido["end_ponto"]:"",
                 style: new TextStyle(
                     fontSize: 13.0)),
-            new Text('Quantidade: ${pedido["quant_itens"]}',
+            new Text('Quantidade: ${pedido["quant_itens"]!=null?pedido["quant_itens"]:""}',
                 style: new TextStyle(
                     fontSize: 11.0)),
           ]),

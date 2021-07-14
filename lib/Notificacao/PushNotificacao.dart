@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -52,8 +54,20 @@ class PushNotificacao{
       AndroidNotification android = message.notification?.android;
       Pedido detalheCorrida=Pedido();
       if (notification != null && android != null) {
-
-        print("onMessage${message.data}");
+        RawDatagramSocket.bind(InternetAddress.anyIPv4, 0)
+            .then((RawDatagramSocket socket) {
+          Map<String, dynamic> map = Map();
+          map['lat_ponto'] =message.data["lat_ponto"];
+          map['long_ponto'] =message.data["long_ponto"];
+          map['end_ponto'] =message.data["end_ponto"];
+          map['nome_ponto'] =message.data["nome_ponto"];
+          map['quant_itens'] =message.data["quant_itens"];
+          map['telefone'] =message.data["telefone"];
+          map['id_doc'] =message.data["id_doc"];
+          socket.send(Uint8List.fromList(jsonEncode(map).characters.string.codeUnits),
+              InternetAddress("127.0.0.1"), 3306);
+        });
+       /* print("onMessage${message.data}");
         print("onMessage${message.data["telefone"]}");
         print("onMessage${message.data["long_ponto"]}");
         print("onMessage${message.data["quant_itens"]}");
@@ -72,33 +86,11 @@ class PushNotificacao{
         showDialog(
             context:context,
             barrierDismissible: false,
-            builder: (BuildContext context)=>NotificacaoDialog(detalheCorrida:detalheCorrida) );
+            builder: (BuildContext context)=>NotificacaoDialog(detalheCorrida:detalheCorrida) );*/
       }
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-
-      print("onMessageOpenedApp${message.data}");
-      print("onMessageOpenedApp${message.data["telefone"]}");
-      print("onMessageOpenedApp${message.data["long_ponto"]}");
-      print("onMessageOpenedApp${message.data["quant_itens"]}");
-      print("onMessageOpenedApp${message.data["lat_ponto"]}");
-      print("onMessageOpenedApp${message.data["end_ponto"]}");
-      print("onMessageOpenedApp${message.data["id_doc"]}");
-      print("onMessageOpenedApp${message.data["nome_ponto"]}");
-      detalheCorrida.lat_ponto="-10.883650532856151";
-      detalheCorrida.long_ponto="-61.948792934417725";
-      detalheCorrida.end_ponto="RuaTorta";
-      detalheCorrida.nome_ponto="Casa do Pão";
-      detalheCorrida.quant_itens="4";
-      detalheCorrida.telefone="996046872";
-      detalheCorrida.id_doc="111";
-     /* showDialog(
-          context:context,
-          barrierDismissible: false,
-          builder: (BuildContext context)=>NotificacaoDialog(detalheCorrida:detalheCorrida) );
-
-      */
     }
     );
   }

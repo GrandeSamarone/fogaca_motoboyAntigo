@@ -6,8 +6,10 @@ import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fogaca_app/Controllers/ControllerPedido.dart';
 import 'package:fogaca_app/Model/Motoboy.dart';
 import 'package:fogaca_app/Model/Pedido.dart';
+import 'package:fogaca_app/Store/StoreDadosUsuario.dart';
 import '../Pages_pedido/Pedidos_em_Entrega.dart';
 import '../Pages_pedido/Tela_Passeio.dart';
 import 'package:fogaca_app/Providers/Firestore_Dados.dart';
@@ -30,12 +32,11 @@ class NotificacaoDialog extends StatefulWidget{
 class NotificacaoDialogState extends State<NotificacaoDialog> {
 
   final assetsAudioPlayer =AssetsAudioPlayer();
-  Dados_usuario dados_usuario;
   bool cancelado=false;
-  int quant;
-  String _id,_nome,_telefone,_foto,_moto,_modelo,_cor,_placa,_token;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-
+  StoreDadosUsuario controllerDadosUsuario;
+  ControllerPedido controllerPedido;
+  Pedido pedido=new Pedido();
   @override
   void initState() {
     // TODO: implement initState
@@ -74,23 +75,10 @@ class NotificacaoDialogState extends State<NotificacaoDialog> {
   @override
   Widget build(BuildContext context) {
     verificarEstado();
-    dados_usuario=Provider.of<Dados_usuario>(context);
-    final motoboy=Provider.of<List<Motoboy>>(context);
-    if(motoboy!=null){
-      quant=motoboy[0].n_pedidos;
-      _id=motoboy[0].id;
-      _nome=motoboy[0].nome;
-      _telefone=motoboy[0].telefone;
-      _foto=motoboy[0].icon_foto;
-      _modelo=motoboy[0].modelo;
-      _cor=motoboy[0].cor;
-      _placa=motoboy[0].placa;
-      _token=motoboy[0].token;
 
-    }
-
-
-
+    controllerDadosUsuario=Provider.of<StoreDadosUsuario>(context);
+    controllerDadosUsuario.DadosMotoboy();
+   print("Dados do motoboy::${controllerDadosUsuario.nome}");
 
 
 
@@ -180,12 +168,7 @@ class NotificacaoDialogState extends State<NotificacaoDialog> {
 
                             onPressed: (){
                               ToastMensagem(" Pedido Aceito.", context);
-                              dados_usuario.Atualizar_Pedido(motoboy,widget.detalheCorrida.id_doc,widget.detalheCorrida.quant_itens);
-
-                              widget.streamSub.cancel();
-                              assetsAudioPlayer.stop();
-                              Navigator.of(context).pop();
-
+                            AtualizarPedido();
 
                             })
                     ),
@@ -201,16 +184,51 @@ class NotificacaoDialogState extends State<NotificacaoDialog> {
 
 
   }
+//Açao do botao Login
+  AtualizarPedido(){
+    pedido.boy_telefone=controllerDadosUsuario.telefone;
+    pedido.boy_nome=controllerDadosUsuario.nome;
+    pedido.boy_id=controllerDadosUsuario.id;
+    pedido.boy_foto=controllerDadosUsuario.foto;
+    pedido.id_doc=widget.detalheCorrida.id_doc;
+    controllerPedido.AtualizarPedido(pedido).then((data) {
+
+      print("INFORMAÇÃO RETORNADA::"+data.toString());
+
+      if(data.toString()=="sucesso"){
+        onSucess;
+      }
+
+    }).catchError((err){
+      print("ERROR!!!"+err.toString());
+      onError(err.toString());
+    }).whenComplete(() {
+      onComplete();
+    });
+
+
+  }
+  onSucess(){
+    widget.streamSub.cancel();
+    assetsAudioPlayer.stop();
+    Navigator.of(context).pop();
+  }
+  onError(String erro){
+    print("Erro::"+erro);
+  }
+  onComplete(){
+
+  }
 
 
 
 
   void verificarEstado(){
-  /*  if(widget.detalheCorrida.id_doc!=null) {
+    if(widget.detalheCorrida.id_doc!=null) {
       DocumentReference reference = FirebaseFirestore.instance.collection(
           'Pedidos').doc(widget.detalheCorrida.id_doc);
       widget.streamSub = reference.snapshots().listen((querySnapshot) {
-        var corridaAtual = querySnapshot.data();
+        Map<String, dynamic> corridaAtual = querySnapshot.data();
         print('Document data: ${querySnapshot.data()}');
         if (corridaAtual["situacao"]== "Cancelado") {
           ToastMensagem("Esse Pedido  já foi Cancelado.", context);
@@ -218,7 +236,7 @@ class NotificacaoDialogState extends State<NotificacaoDialog> {
           widget.streamSub.cancel();
           Navigator.of(context).pop();
 
-        }else if ((corridaAtual["boy_id"]!="")&&(corridaAtual["boy_id"]!=_id)){
+        }else if ((corridaAtual["boy_id"]!="")&&(corridaAtual["boy_id"]!=controllerDadosUsuario.id)){
           ToastMensagem("Esse Pedido  já foi Aceito.", context);
           assetsAudioPlayer.stop();
           widget.streamSub.cancel();
@@ -229,6 +247,4 @@ class NotificacaoDialogState extends State<NotificacaoDialog> {
       widget.streamSub.cancel();
     }
   }
-*/
-}
 }

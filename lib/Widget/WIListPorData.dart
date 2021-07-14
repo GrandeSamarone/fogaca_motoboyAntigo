@@ -1,30 +1,31 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fogaca_app/Model/Pedido.dart';
+import 'package:grouped_list/grouped_list.dart';
 
 import 'WIHistoricoCarregando.dart';
 import 'WIPedidoItem.dart';
 
-class WICustomFutureBuilder<T> extends StatelessWidget {
+class WIListPorData<T> extends StatelessWidget {
 
   String colletion;
- String estado;
- String msgvazio;
- String id_usuario;
-  WICustomFutureBuilder({
+  String estado;
+  String msgvazio;
+  String id_usuario;
+  WIListPorData({
     this.colletion,
-   this.estado,
-   this.msgvazio,
+    this.estado,
+    this.msgvazio,
     this.id_usuario
-});
-
+  });
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  List < Pedido > itemList = [];
 
   @override
   Widget build(BuildContext context) {
 
-    Query users = FirebaseFirestore.instance.collection(colletion)
-        .where('boy_id',isEqualTo:id_usuario)
-        .where("estado",isEqualTo:estado);
+    Query users = FirebaseFirestore.instance.collection("Pedidos");
 
     return StreamBuilder <QuerySnapshot>(
       stream: users.snapshots(),
@@ -47,27 +48,27 @@ class WICustomFutureBuilder<T> extends StatelessWidget {
                 children: <Widget>[
                   Column(
                     children: snapshot.data.docs.map((DocumentSnapshot document) {
-
+                      List<dynamic> data = document.data() as List<dynamic>;
                       return WIPedidoItem(pedido: document.data());
                     }).toList(),
                   )
                 ]
             );
           } else {
-               return Container(
-                 width: double.infinity,
-                   child:Column(
-                     mainAxisAlignment: MainAxisAlignment.center,
-                     crossAxisAlignment: CrossAxisAlignment.center,
-                     children: [
-                       Image.asset("imagens/desk-bell.png",
-                       width: 50,
-                       height: 50,),
-                       Text(msgvazio,
-                         style: TextStyle(fontSize:15,fontWeight: FontWeight.w400),)
-                   ],
-                   ),
-               );
+            return Container(
+              width: double.infinity,
+              child:Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset("imagens/desk-bell.png",
+                    width: 50,
+                    height: 50,),
+                  Text(msgvazio,
+                    style: TextStyle(fontSize:15,fontWeight: FontWeight.w400),)
+                ],
+              ),
+            );
           }
         }
         return Container();
@@ -75,5 +76,4 @@ class WICustomFutureBuilder<T> extends StatelessWidget {
 
     );
   }
-
   }

@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fogaca_app/Notificacao/PushNotificacao.dart';
+import 'package:fogaca_app/Widget/WIListPorData.dart';
 import 'Pages_pedido/Pedidos_em_Entrega.dart';
 import 'Pages_user/Tela_Login.dart';
 import 'Pages_user/Tela_Cad_Moto.dart';
@@ -34,7 +35,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     map['quant_itens'] =message.data["quant_itens"];
     map['telefone'] =message.data["telefone"];
     map['id_doc'] =message.data["id_doc"];
-    socket.send(Uint8List.fromList(jsonEncode(map).codeUnits),
+    socket.send(Uint8List.fromList(jsonEncode(map).characters.string.codeUnits),
         InternetAddress("127.0.0.1"), 3306);
   });
 }
@@ -58,7 +59,6 @@ void main()async {
   flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  final DadosFirestore=Dados_usuario();
 
   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   Function originalOnError = FlutterError.onError;
@@ -91,11 +91,7 @@ void main()async {
             create:(_)=>ThemeChanger(),
           ),  ChangeNotifierProvider<Dados_usuario>(
             create:(_)=>Dados_usuario(),
-          ),ChangeNotifierProvider<AppData>(
-            create:(_)=>AppData(),
-          ),
-          StreamProvider(create: (context)=>DadosFirestore.GetClientes()),
-          StreamProvider(create: (context)=>DadosFirestore.GetPedidos()),
+          )
         ],
         child: MyApp()
 

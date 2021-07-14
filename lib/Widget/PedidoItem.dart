@@ -7,7 +7,11 @@ import 'Toast.dart';
 class PedidoItem extends StatelessWidget
 {
   Map<String, dynamic> pedido = Map();
-  PedidoItem({this.pedido});
+  BuildContext context;
+  PedidoItem({
+    this.context,
+    this.pedido
+  });
   bool finalizado;
   String url="https://firebasestorage.googleapis.com/v0/b/fogaca-app.appspot.com/o/perfil%2Fshop.png?alt=media&token=4822582a-a264-4638-8c2a-2bd1341be58c";
   Color ColorButton=Colors.grey[700];

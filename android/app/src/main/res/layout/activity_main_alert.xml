@@ -4,11 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:cardview="http://schemas.android.com/apk/res-auto"
     tools:context=".MainAlert"
-    android:gravity="center"
+    android:gravity="bottom"
     android:padding="38dp">
 
     <androidx.cardview.widget.CardView
+        android:elevation="4dp"
+        cardview:cardCornerRadius="4dp"
+        android:clickable="true"
         app:cardBackgroundColor="#fff"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -25,31 +29,60 @@
                 android:src="@drawable/sino"/>
 
             <TextView
-                android:textSize="18dp"
+                android:textSize="20dp"
                 android:textStyle="bold"
                 android:id="@+id/nome_loja"
                 android:textColor="#000"
-                android:text="Teste Card"
+                android:text="Fogaça 123"
+                android:fontFamily="@font/boltsemibold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
+            <LinearLayout
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_gravity="bottom"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/desticon"/>
+                <TextView
+                    android:textSize="18dp"
+                    android:id="@+id/endereco_loja"
+                    android:fontFamily="@font/boltregular"
+                    android:textColor="#000"
+                    android:text="Teste Card"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/iconquantpedido"/>
+                <TextView
+                    android:textSize="18dp"
+                    android:fontFamily="@font/boltregular"
+                    android:id="@+id/quantitens_loja"
+                    android:textColor="#000"
+                    android:text="Teste Card"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
 
-            <TextView
-                android:layout_marginTop="8dp"
-                android:id="@+id/endereco_loja"
-                android:textColor="#000"
-                android:text="Teste Card"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:layout_marginTop="8dp"
-                android:id="@+id/quantitens_loja"
-                android:textColor="#000"
-                android:text="Teste Card"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
 
             <Button
+                android:theme="@style/botaoaceitar"
                 android:text="Aceitar"
+                android:fontFamily="@font/boltsemibold"
+                android:textSize="20dp"
                 android:layout_marginTop="20dp"
                 android:id="@+id/button_aceitar"
                 android:layout_width="match_parent"

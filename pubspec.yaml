@@ -23,12 +23,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_sticky_header:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
 
   cupertino_icons: ^1.0.1
   sticky_grouped_list: ^1.3.0
+  grouped_list: ^4.0.0
   google_maps_flutter: ^2.0.2
   firebase_core: ^1.0.1
   firebase_auth: ^1.0.1
@@ -103,7 +105,7 @@ flutter:
   fonts:
     - family: Signatra
       fonts:
-        - asset: fonts/Signatra.ttf
+        - asset: fonts/signatra.ttf
     - family: Brand-Regular
       fonts:
         - asset: fonts/bolt-regular.ttf
