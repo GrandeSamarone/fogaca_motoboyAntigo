@@ -39,140 +39,284 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
 
   final controllerCadastro = new CadastroController();
 
+  String dropDownText = 'Selecione uma cidade';
+  List <String> ItensList = [
+    'Selecione uma cidade',
+    'Ji-Paraná',
+    'Ouro Preto',
+    'Jaru',
+    'Ariquemes',
+    'Cacoal',
+    'Médici',
+  ];
+
+  String codcity;
   @override
   Widget build(BuildContext context) {
-
-    return Scaffold(
-      appBar:AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back,
-              color: Colors.red[900]),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        backgroundColor:Colors.white.withOpacity(0),
-        elevation: 0,
-      ),
-      body:SafeArea(
-        child: SingleChildScrollView(
-          child:Column(
-            children: [
-              SizedBox(
-                  width: double.infinity
-              ),
-              Image.asset("imagens/fogacasemnome.png",
-                width:180,
-                height: 120,
-              ),
-              Padding(padding: EdgeInsets.fromLTRB(22.0, 22.0, 22.0, 32.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      SizedBox(height:12.0),
-                      Text(
-                        "Insira os detalhes da moto",
-                        style: TextStyle(
-                          fontSize: 18.0, fontFamily: "Brand Bold", color: Theme
-                            .of(context)
-                            .textTheme
-                            .bodyText1
-                            .color,),
-                        textAlign: TextAlign.center,
-                      ),
-
-
-                      SizedBox(height:26.0),
-                      CPTextFormField(
-                        textCapitalization: TextCapitalization.characters,
-                        type: TextInputType.text,
-                        obscureText: false,
-                        maxlenght:15,
-                        labeltext:"Modelo",
-
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return '*Digite um modelo de moto.';
-                          }else if(value.length<4){
-                            return '*mínimo 4 caracteres.';
-                          }
-                          return null;
-                        },
-                        onSaved: (input) => _modelo = input,
-                      ),
-                      SizedBox(height:10.0),
-                      CPTextFormField(
-                        textCapitalization: TextCapitalization.characters,
-                        type: TextInputType.text,
-                        obscureText: false,
-                        maxlenght:7,
-                        labeltext:"Placa",
-
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return '*Digite a placa.';
-                          }else if(value.length<7){
-                            return '*incorreto.';
-                          }
-                          return null;
-                        },
-                        onSaved: (input) => _placa = input,
-                      ),
-                      SizedBox(height:10.0),
-                      CPTextFormField(
-                        textCapitalization: TextCapitalization.characters,
-                        type: TextInputType.text,
-                        obscureText: false,
-                        maxlenght:15,
-                        labeltext:"Cor",
-
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return '*cor é necessária.';
-                          }else if(value.length<1){
-                            return '*incorreto.';
-                          }
-                          return null;
-                        },
-                        onSaved: (input) => _cor = input,
-                      ),
-                      SizedBox(height:42.0),
-                      WIBusy(
-                        busy: busy,
-                        child:   Container(
-                            width: double.infinity,
-                            height: 50.0,
-                            child: CPButton(
-                              text:"Criar Conta",
-                              callback:(){
-
-                                if (_formKey.currentState.validate()) {
-                                  _formKey.currentState.save();
-                                  SalvarDriveMotoInfo(context);
-
-                                }
-                              },
-
-                            )
-
-                        ),
-                      ),
-
-                    ],
-                  ),
-                ),)
-
-            ],
+    return Stack(
+        children: [
+          Image.asset(
+            "imagens/Vector_Cadastro.png",
           ),
-        ),
-      ),
+          Scaffold(
+              backgroundColor: Colors.transparent,
+              body: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
 
+                      padding:EdgeInsets.only(
+                          top: 20,
+                          left: 10),
+                      width: MediaQuery.of(context).size.width,
+
+                      alignment: Alignment.topLeft,
+                      child:TextButton.icon(
+                          onPressed:(){
+                            Navigator.of(context).pop();
+                          },
+                          icon:  Icon(Icons.arrow_back,
+                              color: Colors.white),
+                          label:Text("")) ,
+                    ),
+
+                    Text("Cadastre sua Moto",
+                      style:
+                      TextStyle(
+                          fontFamily:"Brand Bold",
+                          fontSize: 25,
+                          color: Colors.white
+                      ),
+                    ),
+
+                    SizedBox(height: 20,),
+    Container(
+                        width: MediaQuery.of(context).size.width,
+                        height:MediaQuery.of(context).size.height ,
+                        decoration:BoxDecoration(
+                            borderRadius:
+                            BorderRadius.only(
+                              topLeft: Radius.circular(30.0),
+                              topRight:Radius.circular(30.0),),
+                            color:Color(0xFFFDFDFD),
+                            boxShadow:[
+                              new BoxShadow(
+                                  color:Colors.black12,
+                                  offset:new Offset(1, 2.0),
+                                  blurRadius: 5,
+                                  spreadRadius: 1
+                              )
+                            ]
+                        ),
+                        padding: EdgeInsets.only(
+                            left: 40,
+                            right: 40,
+                            bottom: 20,
+                        top: 45),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                              children: [
+                                  CPTextFormField(
+                                  textCapitalization: TextCapitalization.characters,
+                                  type: TextInputType.text,
+                                  obscureText: false,
+                                  maxlenght:15,
+                                  labeltext:"Modelo",
+
+                                  validator: (value) {
+                                  if (value.isEmpty) {
+                                  return '*Digite um modelo de moto.';
+                                  }else if(value.length<4){
+                                  return '*mínimo 4 caracteres.';
+                                  }
+                                  return null;
+                                  },
+                                  onSaved: (input) => _modelo = input,
+                                  ),
+                                  SizedBox(height:10.0),
+                                  CPTextFormField(
+                                  textCapitalization: TextCapitalization.characters,
+                                  type: TextInputType.text,
+                                  obscureText: false,
+                                  maxlenght:7,
+                                  labeltext:"Placa",
+
+                                  validator: (value) {
+                                  if (value.isEmpty) {
+                                  return '*Digite a placa.';
+                                  }else if(value.length<7){
+                                  return '*incorreto.';
+                                  }
+                                  return null;
+                                  },
+                                  onSaved: (input) => _placa = input,
+                                  ),
+                                  SizedBox(height:10.0),
+                                  CPTextFormField(
+                                  textCapitalization: TextCapitalization.characters,
+                                  type: TextInputType.text,
+                                  obscureText: false,
+                                  maxlenght:15,
+                                  labeltext:"Cor",
+
+                                  validator: (value) {
+                                  if (value.isEmpty) {
+                                  return '*cor é necessária.';
+                                  }else if(value.length<1){
+                                  return '*incorreto.';
+                                  }
+                                  return null;
+                                  },
+                                  onSaved: (input) => _cor = input,
+                                  ),
+                                  SizedBox(height: 15.0,),
+                                  Container(
+                                  child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+
+                                  Text("Selecione a cidade que irá trabalhar:",textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                  fontSize: 15, fontWeight:FontWeight.w400),
+                                  ),
+                                  Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  alignment: AlignmentDirectional.center,
+                                  decoration: BoxDecoration(
+                                  color: Color(0xFFF6F4F4),
+                                  borderRadius:
+                                  BorderRadius.only(
+                                  topLeft: Radius.circular(12.0),
+                                  topRight:Radius.circular(12.0),
+                                  bottomLeft:Radius.circular(12.0),
+                                  bottomRight:Radius.circular(12.0),
+                                  ),
+                                  ),
+                                  child: DropdownButton<String>(
+                                  value: dropDownText,
+                                  icon: Icon(FontAwesomeIcons.chevronDown),
+                                  iconSize: 24,
+                                  elevation: 16,
+                                  style: TextStyle(
+                                  color: Theme.of(context).textTheme.headline4.color,
+                                  fontSize: 14,
+                                  fontFamily: "Brand-Regular"),
+                                  underline: Container(
+                                  height: 0,
+                                  ),
+                                  onChanged: (String data) {
+                                  setState(() {
+                                  dropDownText = data;
+                                  });
+                                  },
+                                  items: ItensList.map<DropdownMenuItem<String>>((String value) {
+                                  return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Center(
+                                  child: Text(
+                                  value,
+                                  textAlign: TextAlign.center,
+                                  ),
+                                  ),
+                                  );
+                                  }).toList(),
+                                  ),
+                                  )
+
+                                  ],
+                                  ),
+                                  ),
+                                  SizedBox(height:42.0),
+                                  WIBusy(
+                                  busy: busy,
+                                  child:  Container(
+                                  width:250,
+                                  decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  gradient: LinearGradient(
+                                  colors: [
+                                  Color(0xFFF9C184),
+                                  Color(0xFFEA9971)
+                                  ],
+                                  ),
+                                  ),
+                                  ),
+                                  ),
+
+                                Container(
+                                  width:250,
+
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Color(0xFFF9C184),
+                                        Color(0xFFEA9971)
+                                      ],
+                                    ),
+                                  ),
+                                  child: ElevatedButton(
+                                    child:Text("Criar Conta"),
+                                    style: ElevatedButton.styleFrom(
+
+                                      primary: Colors.transparent,
+                                      shadowColor: Colors.transparent,
+                                      textStyle: TextStyle(
+
+                                          color: Colors.white54,
+                                          fontSize: 23,
+                                          fontFamily: "Brand Bold"
+                                          ,fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+
+                                    onPressed:(){
+                                        if(dropDownText!="Selecione uma cidade"){
+                                      if (_formKey.currentState.validate()) {
+                                        _formKey.currentState.save();
+                                        SalvarDriveMotoInfo(context);
+
+                                      }
+                                      }else{
+                                          ToastMensagem("Selecione sua cidade de trabalho.", context);
+                                        }
+                                    },
+
+                                  ),
+
+                                ),
+                              ]
+
+                          ),
+                        )
+                        )
+                  ],
+                ),
+              )
+          ),
+        ]
     );
+
   }
 
    SalvarDriveMotoInfo(context)async {
      setState(() {
        busy=true;
      });
+     if(dropDownText=="Ji-Paraná"){
+       codcity="jipa";
+     }else if(dropDownText=="Ouro Preto"){
+       codcity="ouropreto";
+     }else if(dropDownText=="Jaru"){
+       codcity="jaru";
+     }else if(dropDownText=="Ariquemes"){
+       codcity="ariquemes";
+     }else if(dropDownText=="Cacoal"){
+       codcity="cacoal";
+     }else if(dropDownText=="Médici"){
+       codcity="medici";
+     }
     Motoboy motoboy = Motoboy();
     motoboy.nome = widget.dadosMap["nome"];
     motoboy.email = widget.dadosMap["email"];
@@ -180,8 +324,8 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
     motoboy.tipo_dados = widget.dadosMap["tipo_dados"];
     motoboy.cpf_cnpj = widget.dadosMap["cpf_cnpj"];
     motoboy.telefone = widget.dadosMap["telefone"];
-    motoboy.cidade = widget.dadosMap["cidade"];
-    motoboy.cod = widget.dadosMap["cod"];
+    motoboy.cidade = dropDownText;
+    motoboy.cod = codcity;
     motoboy.estrela = "5.0";
     motoboy.modelo = _modelo;
     motoboy.placa = _placa;

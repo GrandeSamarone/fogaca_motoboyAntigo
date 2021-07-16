@@ -31,8 +31,6 @@ class Tela_Cadastro extends StatefulWidget {
 
 class _Tela_CadastroState extends State<Tela_Cadastro> {
 
-  bool _visible_CPF = false;
-  bool _visible_CNPJ = false;
   bool _visible_SENHA = true;
   bool _isValid = true;
   final _formKey = GlobalKey<FormState>();
@@ -47,6 +45,8 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
   String _escolhaUsuario=null;
   TextEditingController cpf_Controller = TextEditingController();
   TextEditingController cnpj_Controller = TextEditingController();
+  bool CPFValid = false;
+  bool CNPJValid = false;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   String dropDownText = 'Selecione uma cidade';
@@ -70,19 +70,24 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
         ),
       Scaffold(
           backgroundColor: Colors.transparent,
-          appBar:AppBar(
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back,
-                  color:Colors.white),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            backgroundColor:Colors.white.withOpacity(0),
-            elevation: 0,
-          ),
           body: SingleChildScrollView(
                 child: Column(
-
                   children: [
+                    Container(
+                      padding:EdgeInsets.only(
+                          top: 20,
+                      left: 10),
+                      width: MediaQuery.of(context).size.width,
+                      alignment: Alignment.topLeft,
+                      child:TextButton.icon(
+                          onPressed:(){
+                            Navigator.of(context).pop();
+                          },
+                          icon:  Icon(Icons.arrow_back,
+                              color: Colors.white),
+                          label:Text("")) ,
+                    ),
+
                     Text("Crie sua Conta",
                     style:
                     TextStyle(
@@ -172,12 +177,15 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                 new Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: <Widget>[
-                                    new Radio(
-                                      value: "cpf",
-                                      groupValue: _escolhaUsuario,
-                                      onChanged: (String escolha) {
-                                        ResultadoBox(true,escolha);
-                                        cnpj_Controller.clear();
+                                    new Checkbox(
+                                      value: CPFValid,
+                                      onChanged: (bool value) {
+                                        setState(() {
+                                          CPFValid = value;
+                                         CNPJValid = false;
+                                         cnpj_Controller.clear();
+                                         // valWednesday = false;
+                                        });
                                       },
                                     ),
                                     new Text(
@@ -186,14 +194,17 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                         fontWeight:FontWeight.w400,
                                         fontSize: 12,),
                                     ),
-                                    new Radio(
-                                      value: "cnpj",
-                                      groupValue: _escolhaUsuario,
-                                      onChanged: (String escolha) {
-                                        ResultadoBox(true,escolha);
-                                        cpf_Controller.clear();
+                                    new  Checkbox(
+                                      value: CNPJValid,
+                                      onChanged: (bool value) {
+                                      setState(() {
+                                        CNPJValid = value;
+                                      CPFValid = false;
+                                      cpf_Controller.clear();
+                                      // valWednesday = false;
+                                      });
                                       },
-                                    ),
+                                      ),
                                     new Text(
                                       'CNPJ',
                                       style: new TextStyle(
@@ -205,7 +216,7 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                 ),
                                 WIDividerWidget(),
 
-                                _visible_CPF ?
+                                CPFValid ?
                                 CPTextFormField(
                                   textCapitalization: TextCapitalization.none,
                                   // autofocus: true,
@@ -226,7 +237,7 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                   //   onSaved: (input) => _cpf_cnpj = input,
                                 ): new Container(),
 
-                                _visible_CNPJ?
+                                CNPJValid?
                                 CPTextFormField(
                                   textCapitalization: TextCapitalization.none,
                                   // autofocus: true,
@@ -305,87 +316,47 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                   },
                                   onSaved: (input) => _repetirsenha = input,
                                 ) :Container(),
-
-                                SizedBox(height: 15.0,),
-                                Container(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-
-                                      Text("Selecione à cidade que irá trabalhar:",textAlign: TextAlign.left,
-                                        style: TextStyle(
-                                            fontSize: 15, fontWeight:FontWeight.w400),
-                                      ),
-                                    Container(
-                                      width: MediaQuery.of(context).size.width,
-                                      alignment: AlignmentDirectional.center,
-                                      decoration: BoxDecoration(
-                                        color: Color(0xFFF6F4F4),
-                                        borderRadius:
-                                        BorderRadius.only(
-                                          topLeft: Radius.circular(12.0),
-                                          topRight:Radius.circular(12.0),
-                                          bottomLeft:Radius.circular(12.0),
-                                          bottomRight:Radius.circular(12.0),
-                                        ),
-                                        ),
-                                      child:  DropdownButton<String>(
-                                        value: dropDownText,
-                                        icon: Icon(FontAwesomeIcons.chevronDown),
-                                        iconSize: 24,
-                                        elevation: 16,
-                                        style: TextStyle(
-                                            color: Theme.of(context).textTheme.headline4.color,
-                                            fontSize: 14,
-                                            fontFamily:  "Brand-Regular"),
-                                        underline: Container(
-                                          height: 0,
-                                        ),
-                                        onChanged: (String data) {
-                                          setState(() {
-                                            dropDownText = data;
-                                          });
-                                        },
-                                        items: ItensList.map<DropdownMenuItem<String>>((String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Center(
-                                              child: Text(
-                                                value,
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    )
-
-                                    ],
-                                  ),
-                                ),
                                 SizedBox(height: 20.0,),
 
                                   Container(
-                                      width: double.infinity,
-                                      height: 50.0,
-                                      child: CPButton(
-                                        text:">> Continuar",
-                                        callback:(){
+                                      width:250,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xFFF9C184),
+                                          Color(0xFFEA9971)
+                                        ],
+                                      ),
+                                    ),
+                                      child: ElevatedButton(
+                                          child:Text(">> Continuar"),
+                                          style: ElevatedButton.styleFrom(
 
+                                            primary: Colors.transparent,
+                                            shadowColor: Colors.transparent,
+                                            textStyle: TextStyle(
 
-                                          if (_formKey.currentState.validate()) {
-                                            _formKey.currentState.save();
-                                            if(dropDownText=="Selecione uma cidade"){
-                                              ToastMensagem("Selecione sua cidade de trabalho.", context);
-                                            } else if(_senha!=_repetirsenha) {
-                                              ToastMensagem("Senhas estão diferentes.", context);
-                                            }else{
-                                              RegistrarNovoUsuario();
-                                            }
-                                          }
-                                        },
+                                                color: Colors.white54,
+                                                fontSize: 23,
+                                                fontFamily: "Brand Bold"
+                                                ,fontWeight: FontWeight.bold
+                                            ),
+                                          ),
 
-                                      )
+                                          onPressed:(){
+                                      if (_formKey.currentState.validate()) {
+                                      _formKey.currentState.save();
+                                      if(dropDownText=="Selecione uma cidade"){
+                                      ToastMensagem("Selecione sua cidade de trabalho.", context);
+                                      } else if(_senha!=_repetirsenha) {
+                                      ToastMensagem("Senhas estão diferentes.", context);
+                                      }else{
+                                      RegistrarNovoUsuario();
+                                      }
+                                      }
+                                      },
+                                      ),
 
                                   ),
                               ]
@@ -406,23 +377,10 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
     String cpf_formatado=CPF.format(cpf_Controller.text);
     String cnpj_formatado=CPF.format(cnpj_Controller.text);
     String tipoDado;
-    String codcity;
     String dados_formatado;
 
-      if(dropDownText=="Ji-Paraná"){
-        codcity="jipa";
-      }else if(dropDownText=="Ouro Preto"){
-        codcity="ouropreto";
-      }else if(dropDownText=="Jaru"){
-        codcity="jaru";
-      }else if(dropDownText=="Ariquemes"){
-        codcity="ariquemes";
-      }else if(dropDownText=="Cacoal"){
-        codcity="cacoal";
-      }else if(dropDownText=="Médici"){
-        codcity="medici";
-      }
-      if(cpf_formatado.isNotEmpty){
+
+      if(CPFValid){
         tipoDado="cpf";
         dados_formatado=cpf_formatado;
       }else{
@@ -434,11 +392,9 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
       Data["nome"] = _nome;
       Data["email"] =_email;
       Data["senha"] =_senha;
+    Data["telefone"] = _tel;
       Data["tipo_dados"] = tipoDado;
       Data["cpf_cnpj"] = dados_formatado;
-      Data["telefone"] = _tel;
-      Data["cidade"] = dropDownText;
-      Data["cod"] = codcity;
 
       Navigator.push(
           context,
@@ -452,24 +408,5 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
   }
 
 
-  void ResultadoBox(bool visivel,String resultado){
-    setState(() {
-      _escolhaUsuario=resultado;
-
-      switch(_escolhaUsuario){
-        case "cpf":
-          print("cpf foi o item selecionado");
-          _visible_CPF=visivel;
-          _visible_CNPJ=false;
-          break;
-        case "cnpj":
-          print("cnpj foi o item selecionado");
-          _visible_CNPJ=visivel;
-          _visible_CPF=false;
-          break;
-      }
-
-    });
-  }
 }
 

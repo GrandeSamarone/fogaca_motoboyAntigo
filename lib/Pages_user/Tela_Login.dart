@@ -181,7 +181,6 @@ class _Tela_LoginState extends State<Tela_Login> {
                                  child:CPButtonText(
                                    text:"Esqueceu a senha?",
                                    callback:(){
-                                     ToastMensagem("Click", context);
                                      Navigator.push(context,MaterialPageRoute(
                                          builder:(context)=>Tela_RedefinirSenha()
                                      ),
@@ -195,7 +194,6 @@ class _Tela_LoginState extends State<Tela_Login> {
                                  child: CPButton(text: "Entrar",
                                    width: double.infinity,
                                    callback: (){
-                                     ToastMensagem("Click", context);
                                      if (_formKey.currentState.validate()) {
                                        _formKey.currentState.save();
                                          SignInEmail();
@@ -220,7 +218,6 @@ class _Tela_LoginState extends State<Tela_Login> {
                                        text: "Cadastre-se",
 
                                        callback:(){
-                                         ToastMensagem("Click", context);
                                          Navigator.push(context,MaterialPageRoute(
                                              builder:(context)=>Tela_Cadastro()
                                          ),
