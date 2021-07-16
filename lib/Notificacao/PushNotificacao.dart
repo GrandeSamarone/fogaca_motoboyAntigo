@@ -13,11 +13,10 @@ import 'package:fogaca_app/Model/Pedido.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'NotificacaoDialog.dart';
-class PushNotificacao{
-  final FirebaseMessaging firebaseMessaging=FirebaseMessaging.instance;
-  Pedido detalheCorrida=Pedido();
 
-
+class PushNotificacao {
+  final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
+  Pedido detalheCorrida = Pedido();
 
   Future<void> initialize(context) async {
     await Firebase.initializeApp();
@@ -31,24 +30,27 @@ class PushNotificacao{
     FirebaseMessaging.onBackgroundMessage(initialize);
 
     final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+        FlutterLocalNotificationsPlugin();
+
     /// Create an Android Notification Channel.
     ///
     /// We use this channel in the `AndroidManifest.xml` file to override the
     /// default FCM channel to enable heads up notifications.
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
     /// Update the iOS foreground notification presentation options to allow
     /// heads up notifications.
-    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
     );
 
+/*
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification notification = message.notification;
       AndroidNotification android = message.notification?.android;
@@ -89,10 +91,7 @@ class PushNotificacao{
             builder: (BuildContext context)=>NotificacaoDialog(detalheCorrida:detalheCorrida) );*/
       }
     });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    }
-    );
+*/
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {});
   }
-
 }

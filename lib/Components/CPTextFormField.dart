@@ -48,19 +48,38 @@ class _CPTextFieldState extends State<CPTextFormField> {
         decoration: InputDecoration(
             labelText: widget.labeltext,
             labelStyle:TextStyle(
+              fontFamily: "Brand-Regular",
+              color: const Color(0xFFB6B2B2),
               fontWeight:FontWeight.w400,
               fontSize: 12,
             ),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                  color:const Color(0xFFC83535),
+                  width:2
+              ),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+
+                  color:const Color(0xFFC83535),
+                  width:2
+              ),
+            ),
+            border: UnderlineInputBorder(
+              borderSide: BorderSide(
+                  color:const Color(0xFFC83535),
+                  width:2
+              ),
+            ),
             hintStyle: TextStyle(
-              color: Theme
-                  .of(context)
-                  .textTheme
-                  .subtitle1
-                  .color,
+              color: const Color(0xFFB6B2B2),
               fontSize: 10.0,
             )
         ),
-        style: TextStyle(fontSize: 14.0),
+        style: TextStyle(fontSize: 14.0,
+          fontFamily: "Brand-Regular",),
+
       );
   }
 }

@@ -43,183 +43,159 @@ class _Tela_LoginState extends State<Tela_Login> {
   var encoded = Uri.encodeFull(Tela_Login.url);
 
 
-  //Açao do botao Login
-  SignInEmail(){
-
-    setState(() {
-      busy=true;
-    });
-    controllerLogin.LoginEmail(_email,_senha).then((data) {
-
-      print("INFORMAÇÃO RETORNADA::"+data.toString());
-
-      if(data.toString()=="sucesso"){
-        ToastMensagem("Login efetuado com sucesso!", context);
-        onSucessEmail();
-      }else if(data.toString()=="[firebase_auth/wrong-password] The password is invalid or the user does not have a password."){
-        ToastMensagem("Senha incorreta.", context);
-      }else if(data.toString()=="[firebase_auth/user-not-found] There is no user record corresponding to this identifier. The user may have been deleted."){
-        ToastMensagem("Conta não cadastrada.", context);
-      }else if(data.toString()=="esta conta não existe."){
-        ToastMensagem("esta conta nao existe.", context);
-      }
-
-    }).catchError((err){
-      print("ERROR!!!"+err.toString());
-      onErrorEmail(err.toString());
-    }).whenComplete(() {
-      onCompleteEmail();
-    });
-
-
-  }
-  onSucessEmail(){
-
-    Navigator.push(context, MaterialPageRoute(
-        builder:(context)=>SplashScreen()));
-  }
-  onErrorEmail(String erro){
-    print("Erro::"+erro);
-  }
-  onCompleteEmail(){
-
-    setState(() {
-      busy=false;
-    });
-  }
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-      key:scaffoldkey,
-      body:SingleChildScrollView(
+    return Scaffold(
+      body: SingleChildScrollView(
         child: Container(
-          padding:EdgeInsets.only(
-            top: 80,
-            left:20,
-            right:20,
-            bottom: 40,
-          ),
-          child: Form(
+          color: Colors.deepPurple,
+
+          child: Stack(
+            children:<Widget> [
+              Container(
+                     padding:EdgeInsets.only(
+                       top: 60,
+                       left:20,
+                       right:20,
+                     ),
+                 child: Form(
             key: _formKey,
             child: Card(
-              child: Column(
-                children:<Widget> [
+                  child: Container(
+                    padding:EdgeInsets.only(
+                      left:20,
+                      right:20,
+                    ),
+                    child: Column(
 
-                  SizedBox(
-                      width: double.infinity
-                  ),
-                  Image.asset("imagens/fogacasemnome.png",
-                    width:180,
-                    height: 120,
-                  ),
-                  Text(
-                      "Fogaça Motoboys",
-                      style: TextStyle(
-                        fontSize:20,
-                        color: Colors.red[900],
-                        fontWeight:FontWeight.w800 ,
-                        fontFamily: "Brand Bold",)
-                  ) ,
-                  SizedBox(height:20),
-                  CPTextFormField(
-                    textCapitalization: TextCapitalization.none,
-                    type: TextInputType.emailAddress,
-                    obscureText: false,
-                    maxlenght:35,
-                    labeltext:"E-mail",
-
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Digite um e-mail.';
-                      }else if(!value.contains("@")){
-                        return 'Digite um e-mail válido.';
-                      }else if(value.contains(" ")){
-                        return '*erro: e-mail contém espaço.';
-                      }
-                      return null;
-                    },
-                    onSaved: (input) => _email = input,
-                  ),
-
-                  SizedBox(height:5),
-                  CPTextFormField(
-                    type: TextInputType.visiblePassword,
-                    textCapitalization: TextCapitalization.none,
-                    obscureText: true,
-                    labeltext:"Senha",
-
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return "Digite uma senha." ;
-                      }else if(value.length<=5){
-                        return 'Senha no mínimo 6 digitos';
-                      }
-                      return null;
-                    },
-                    onSaved: (input) => _senha = input,
-                  ),
-                  Container(
-                    alignment: Alignment.centerRight,
-                    child:CPButtonText(
-                      text:"Esqueceu a senha?",
-                      callback:(){
-                        Navigator.push(context,MaterialPageRoute(
-                            builder:(context)=>Tela_RedefinirSenha()
+                      children:<Widget> [
+                        Image.asset("imagens/fogacasemnome.png",
+                          width:180,
+                          height: 120,
                         ),
-                        );
-                      },
-                    ),
-                  ),
 
-                  WIBusy(
-                    busy: busy,
-                    child: CPButton(text: "Login",
-                      width: double.infinity,
-                      callback: (){
+                        CPTextFormField(
+                          textCapitalization: TextCapitalization.none,
+                          type: TextInputType.emailAddress,
+                          obscureText: false,
+                          labeltext:"E-mail do Usuário",
 
-                        if (_formKey.currentState.validate()) {
-                          _formKey.currentState.save();
-                          SignInEmail();
-                        }
-                      },
-                    ),
-                  ),
-
-                  SizedBox(height:10),
-
-
-                  SizedBox(height:10),
-                  Row(
-                      crossAxisAlignment:CrossAxisAlignment.center,
-                      mainAxisAlignment:MainAxisAlignment.center,
-                      children: [
-                        Text(
-                            "Não tem conta?",
-                            style:TextStyle(
-                                fontWeight: FontWeight.w100,
-                                color:Colors.black54
-                            )
-                        ) ,
-                        CPButtonText(
-                          text: "CADASTRE-SE",
-                          callback:(){
-                            Navigator.push(context,MaterialPageRoute(
-                                builder:(context)=>Tela_Cadastro()
-                            ),
-                            );
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Digite um e-mail.';
+                            }else if(!value.contains("@")){
+                              return 'Digite um e-mail válido.';
+                            }else if(value.contains(" ")){
+                              return '*erro: e-mail contém espaço.';
+                            }
+                            return null;
                           },
-                        )
-                      ]
+                          onSaved: (input) => _email = input,
+                        ),
+
+                        SizedBox(height:5),
+                        CPTextFormField(
+                          type: TextInputType.visiblePassword,
+                          textCapitalization: TextCapitalization.none,
+                          obscureText: true,
+                          labeltext:"Senha",
+
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return "Digite uma senha." ;
+                            }else if(value.length<=5){
+                              return 'Senha no mínimo 6 digitos';
+                            }
+                            return null;
+                          },
+                          onSaved: (input) => _senha = input,
+                        ),
+                        SizedBox(height:10),
+                        Container(
+                          alignment: Alignment.centerRight,
+                          child:CPButtonText(
+                            text:"Esqueceu a senha?",
+                            callback:(){
+                              Navigator.push(context,MaterialPageRoute(
+                                  builder:(context)=>Tela_RedefinirSenha()
+                              ),
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(height:10),
+                        WIBusy(
+                          busy: busy,
+                          child: CPButton(text: "Entrar",
+                            width: double.infinity,
+                            callback: (){
+
+                              if (_formKey.currentState.validate()) {
+                                _formKey.currentState.save();
+
+                              }
+                            },
+                          ),
+                        ),
+                       SizedBox(height: 10,),
+                        Row(
+                            crossAxisAlignment:CrossAxisAlignment.center,
+                            mainAxisAlignment:MainAxisAlignment.center,
+                            children: [
+
+                              Text(
+                                  "Não possui uma conta?",
+                                  style:TextStyle(
+                                    fontFamily:"Brand-Regular",
+                                      fontWeight: FontWeight.w100,
+                                  )
+                              ) ,
+                              CPButtonText(
+                                text: "Cadastre-se",
+
+                                callback:(){
+                                  Navigator.push(context,MaterialPageRoute(
+                                      builder:(context)=>Tela_Cadastro()
+                                  ),
+                                  );
+                                },
+
+                              )
+                            ]
+                        ),
+                      ],
+                    ),
                   ),
-                  SizedBox(height:10),
-                ],
-              ),
             ),
           ),
-        ),
-      ),
+               ),
 
+              Positioned(
+                left: 0.0,
+                right: 0.0,
+                top: 0.0,
+                child: Image.asset(
+                  "imagens/Vector_top.png",
+                ),
+              ),
+              Positioned(
+                left: 0.0,
+                right: 0.0,
+                bottom: 0.0,
+                child: Image.asset(
+                  "imagens/Vector_bottom.png",
+                ),
+              ),
+
+            ]
+          ),
+        ),
+      )
     );
 
   }
 }
+
+
+
+

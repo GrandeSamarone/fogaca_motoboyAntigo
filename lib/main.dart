@@ -28,27 +28,27 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   RawDatagramSocket.bind(InternetAddress.anyIPv4, 0)
       .then((RawDatagramSocket socket) {
     Map<String, dynamic> map = Map();
-    map['lat_ponto'] =message.data["lat_ponto"];
-    map['long_ponto'] =message.data["long_ponto"];
-    map['end_ponto'] =message.data["end_ponto"];
-    map['nome_ponto'] =message.data["nome_ponto"];
-    map['quant_itens'] =message.data["quant_itens"];
-    map['telefone'] =message.data["telefone"];
-    map['id_doc'] =message.data["id_doc"];
-    socket.send(Uint8List.fromList(jsonEncode(map).characters.string.codeUnits),
-        InternetAddress("127.0.0.1"), 3306);
+    map['lat_ponto'] = message.data["lat_ponto"];
+    map['long_ponto'] = message.data["long_ponto"];
+    map['end_ponto'] = message.data["end_ponto"];
+    map['nome_ponto'] = message.data["nome_ponto"];
+    map['quant_itens'] = message.data["quant_itens"];
+    map['telefone'] = message.data["telefone"];
+    map['id_doc'] = message.data["id_doc"];
+
+    socket.send(
+        utf8.encode(jsonEncode(map)), InternetAddress("127.0.0.1"), 3306);
   });
 }
 
 AndroidNotificationChannel channel;
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
-
-void main()async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
+  FirebaseMessaging.onMessage.listen(_firebaseMessagingBackgroundHandler);
   channel = const AndroidNotificationChannel(
     'high_importance_channel', // id
     'High Importance Notifications', // title
@@ -69,54 +69,48 @@ void main()async {
 
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
 
   /// Update the iOS foreground notification presentation options to allow
   /// heads up notifications.
-  await FirebaseMessaging.instance
-      .setForegroundNotificationPresentationOptions(
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: true,
     badge: true,
     sound: true,
   );
 
   runApp(
-    MultiProvider(
-        providers: [
-          Provider<StoreDadosUsuario>(
-            create:(_)=>StoreDadosUsuario(),
-          ),
-          ChangeNotifierProvider<ThemeChanger>(
-            create:(_)=>ThemeChanger(),
-          ),  ChangeNotifierProvider<Dados_usuario>(
-            create:(_)=>Dados_usuario(),
-          )
-        ],
-        child: MyApp()
-
-  ),
-
+    MultiProvider(providers: [
+      Provider<StoreDadosUsuario>(
+        create: (_) => StoreDadosUsuario(),
+      ),
+      ChangeNotifierProvider<ThemeChanger>(
+        create: (_) => ThemeChanger(),
+      ),
+      ChangeNotifierProvider<Dados_usuario>(
+        create: (_) => Dados_usuario(),
+      )
+    ], child: MyApp()),
   );
-
 }
 
-class MyApp extends StatelessWidget{
+class MyApp extends StatelessWidget {
   PushNotificacao pushNotificacao = PushNotificacao();
   @override
   Widget build(BuildContext context) {
     pushNotificacao.initialize(context);
     // TODO: implement build
-    bool darkThemeEnabled=Provider.of<ThemeChanger>(context).isDark();
+    bool darkThemeEnabled = Provider.of<ThemeChanger>(context).isDark();
     return MaterialApp(
       //Thema LIGHT
       theme: ThemeData(
           dialogBackgroundColor: Colors.white,
           brightness: Brightness.light,
-          primarySwatch:Colors.red,
+          primarySwatch: Colors.red,
           accentColor: Colors.redAccent,
           cardColor: Colors.white,
-          fontFamily:"Brand Bold",
+          fontFamily: "Brand Bold",
           textTheme: TextTheme(
             bodyText1: TextStyle(),
             bodyText2: TextStyle(),
@@ -124,17 +118,15 @@ class MyApp extends StatelessWidget{
             bodyColor: Colors.black54,
             displayColor: Colors.white60,
           ),
-
-          visualDensity: VisualDensity.adaptivePlatformDensity
-      ),
+          visualDensity: VisualDensity.adaptivePlatformDensity),
       //Thema Dark
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         dialogBackgroundColor: Colors.grey[800],
-        fontFamily:"Brand Bold",
+        fontFamily: "Brand Bold",
         cardColor: Colors.black87,
         accentColor: Colors.redAccent,
-        primarySwatch:createMaterialColor(Color(4288088072)),
+        primarySwatch: createMaterialColor(Color(4288088072)),
         textTheme: TextTheme(
           bodyText1: TextStyle(),
           subtitle1: TextStyle(color: Colors.black87),
@@ -144,27 +136,27 @@ class MyApp extends StatelessWidget{
         // accentColor:Colors.redAccent,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      themeMode: darkThemeEnabled?ThemeMode.dark:ThemeMode.light,
+      themeMode: darkThemeEnabled ? ThemeMode.dark : ThemeMode.light,
       debugShowCheckedModeBanner: false,
       title: "Fogaça Motoboys",
       //verificando se o usuario esta logado
-      initialRoute:  FirebaseAuth.instance.currentUser==null? Tela_Login.idScreen:SplashScreen.idScreen,
+      initialRoute: FirebaseAuth.instance.currentUser == null
+          ? Tela_Login.idScreen
+          : SplashScreen.idScreen,
       routes: {
-        SplashScreen.idScreen:(context)=>SplashScreen(),
-        Tela_Cadastro.idScreen:(context)=>Tela_Cadastro(),
-        Tela_Login.idScreen:(context)=>Tela_Login(),
-        Mapa_Home.idScreen:(context)=>Mapa_Home(),
-        Pedidos_em_Entrega.idScreen:(context)=>Pedidos_em_Entrega(),
-      ///  MotoInfo.idScreen:(context)=>MotoInfo(),
-       // Pedidos_em_Andamento.idScreen:(context)=>Pedidos_em_Andamento(),
+        SplashScreen.idScreen: (context) => SplashScreen(),
+        Tela_Cadastro.idScreen: (context) => Tela_Cadastro(),
+        Tela_Login.idScreen: (context) => Tela_Login(),
+        Mapa_Home.idScreen: (context) => Mapa_Home(),
+        Pedidos_em_Entrega.idScreen: (context) => Pedidos_em_Entrega(),
+
+        ///  MotoInfo.idScreen:(context)=>MotoInfo(),
+        // Pedidos_em_Andamento.idScreen:(context)=>Pedidos_em_Andamento(),
         //Tela_Cad_Loc_Loja.idScreen:(context)=>Tela_Cad_Loc_Loja(),
         //Tela_Pesquisa.idScreen:(context)=>Tela_Pesquisa(),
       },
-
     );
-
   }
-
 
   //Color
   MaterialColor createMaterialColor(Color color) {
@@ -186,7 +178,4 @@ class MyApp extends StatelessWidget{
     });
     return MaterialColor(color.value, swatch);
   }
-
-
 }
-

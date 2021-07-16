@@ -21,16 +21,26 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
+import com.MarlosTrinidad.fogaca_app.model.MotoboyAccount;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.gson.JsonObject;
 
 import org.json.JSONObject;
 
@@ -38,6 +48,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.github.florent37.assets_audio_player.notification.NotificationService.CHANNEL_ID;
 import static io.flutter.plugins.firebase.auth.Constants.TAG;
@@ -49,11 +61,14 @@ public class ReceiverService extends Service {
     byte[] receiveData = new byte[4024];
 
     WindowManager wm;
-    TextView nome_lojista, end_lojista,quant_itens;
-    String id_doc;
-    LinearLayout lm;
+
+
     WindowManager.LayoutParams lp;
     MediaPlayer mp;
+
+
+    FirebaseUser user;
+    MotoboyAccount account;
     private final FirebaseFirestore db=FirebaseFirestore.getInstance();
     public ReceiverService() {
 
@@ -68,12 +83,26 @@ public class ReceiverService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        FirebaseApp.initializeApp(getBaseContext());
+
+        if(FirebaseAuth.getInstance().getCurrentUser() != null){
+           user = FirebaseAuth.getInstance().getCurrentUser();
+           db.collection("user_motoboy").document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+               @Override
+               public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                   if(task.isSuccessful()){
+                       account = (MotoboyAccount) task.getResult().toObject(MotoboyAccount.class);
+                   }
+               }
+           });
+        }
         hand = new Handler();
 
         mp = new MediaPlayer();
 
         wm = (WindowManager)getBaseContext().getSystemService(WINDOW_SERVICE) ;
-        lm = (LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.activity_main_alert, null, false);
+
         lp = new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             lp.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
@@ -86,18 +115,6 @@ public class ReceiverService extends Service {
 
         lp.gravity = Gravity.CENTER;
 
-        nome_lojista = lm.findViewById(R.id.nome_loja);
-        end_lojista = lm.findViewById(R.id.endereco_loja);
-        quant_itens = lm.findViewById(R.id.quantitens_loja);
-
-        lm.findViewById(R.id.button_aceitar).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                wm.removeView(lm);
-                mp.release();
-            }
-        });
 
         new Thread(){
             @Override
@@ -111,17 +128,13 @@ public class ReceiverService extends Service {
                         Log.i("SERVICE","AGUARDANDO");
                         try {
                             server.receive(packet);
-                            String data = new String(packet.getData(), "utf8");
+                            String data = new String(packet.getData(), "UTF-8");
                             JSONObject json = new JSONObject(data );
-                            Log.i("Erro::",json.getString("nome_ponto"));
-                            nome_lojista.setText(json.getString("nome_ponto"));
-                            end_lojista.setText(json.getString("end_ponto"));
-                            quant_itens.setText(json.getString("quant_itens"));
-                            id_doc=(json.getString("id_doc"));
-                            hand.post(() -> {
-                                wm.addView(lm, lp);
-                                playSong();
-                            });
+
+
+                           createView(json);
+
+
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -137,14 +150,48 @@ public class ReceiverService extends Service {
 
     }
 
+    public void createView(JSONObject json){
+        try {
+            String id_doc = (json.getString("id_doc"));
+            TextView nome_lojista, end_lojista, quant_itens;
+            LinearLayout lm = (LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.activity_main_alert, null, false);
+            nome_lojista = lm.findViewById(R.id.nome_loja);
+            end_lojista = lm.findViewById(R.id.endereco_loja);
+            quant_itens = lm.findViewById(R.id.quantitens_loja);
+
+            nome_lojista.setText(json.getString("nome_ponto"));
+            end_lojista.setText(json.getString("end_ponto"));
+            quant_itens.setText(json.getString("quant_itens"));
+            lm.findViewById(R.id.button_aceitar).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    aceitarCorrida(lm, id_doc);
+                }
+            });
+            hand.post(() -> {
+
+                wm.addView(lm, lp);
+                listen(id_doc,lm);
+                playSong();
+
+            });
+        }catch (Exception e){
+
+        }
+
+    }
+
     public void playSong(){
         try{
             mp.reset();
+
             AssetFileDescriptor song = getResources().getAssets().openFd("somsino.mp3");
             mp.setDataSource(song.getFileDescriptor(), song.getStartOffset(), song.getLength());
+            mp.setLooping(true);
             mp.prepare();
             mp.start();
-            mp.isLooping();
+
         }catch (Exception e){
 
             Log.i("Erro::",e.toString());
@@ -205,25 +252,60 @@ public class ReceiverService extends Service {
         mp.release();
 
     }
-    public void VerificarPedido(){
-        final DocumentReference docRef = db.collection("Pedidos").document(id_doc);
-        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot snapshot,
-                                @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
-                    return;
-                }
+    public void listen(String id_doc, View view){
+        final DocumentReference doc = db.collection("Pedidos").document(id_doc);
+        doc.addSnapshotListener((snapshot, e) -> {
 
-                if (snapshot != null && snapshot.exists()) {
+           // Toast.makeText(getBaseContext(), "Escutando Pedido", Toast.LENGTH_SHORT).show();
+            if (e != null) {
+                Log.w(TAG, "Listen failed.", e);
+                return;
+            }
 
-                    Log.d(TAG, "Current data: " + snapshot.getData());
-                } else {
-                    Log.d(TAG, "Current data: null");
-                }
+            if (snapshot != null && snapshot.exists() && snapshot.get("situacao") != null) {
+                Log.i("CORRIDA", snapshot.get("situacao").toString());
+               if(snapshot.get("situacao").toString().equals("Corrida Aceita")){
+                   if(!snapshot.get("boy_id").toString().equals(user.getUid())){
+                       fecharDialogo(view);
+
+                       return;
+                   }else return;
+               }else if(snapshot.get("situacao").toString().equals("Cancelado")){
+                  fecharDialogo(view);
+                   return;
+               }
             }
         });
+    }
+
+    public void fecharDialogo(View lm){
+        mp.stop();
+        mp.reset();
+        wm.removeView(lm);
 
     }
+
+    public void aceitarCorrida(View lm, String doc){
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("situacao","Corrida Aceita");
+        map.put("boy_telefone", account.getTelefone());
+        map.put("boy_foto",account.getIcon_foto());
+        map.put("boy_id",account.getId());
+
+        map.put("boy_nome",account.getNome());
+        map.put("boy_moto_modelo",account.getModelo());
+        map.put("boy_moto_placa",account.getPlaca());
+        map.put("boy_moto_cor",account.getCor());
+        db.collection("Pedidos").document(doc).update(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+               if(task.isSuccessful()){
+                   Toast.makeText(ReceiverService.this.getBaseContext(), "Pedido Aceito", Toast.LENGTH_SHORT).show();
+                   fecharDialogo(lm);
+               }else Toast.makeText(ReceiverService.this.getBaseContext(), "Não foi possível aceitar pedido", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }

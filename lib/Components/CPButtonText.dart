@@ -24,8 +24,11 @@ class CPButtonText extends StatelessWidget{
   Widget build(BuildContext context) {
     // TODO: implement build
     return  TextButton(
-        child:Text(text,
+        child:Text(
+          text,
               style:TextStyle(
+                  color:  Color(0xFFC83535),
+                fontFamily: "Brand-Regular",
                 fontWeight: FontWeight.bold
             ),
             ),

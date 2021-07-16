@@ -11,37 +11,39 @@ class CPButton extends StatelessWidget{
   final Function() callback;
   final double width;
   final double height;
-  final IconData icon;
   CPButton({
     @required this.text,
     @required this.callback,
     this.imagem,
     this.width,
     this.height,
-    this.icon,
   });
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return   Container(
-      width:width!=null?width:300.0,
+      width:width!=null?width:200.0,
       height: height!=null?height:50.0,
-      child:
-      ElevatedButton.icon(
-          icon: Icon(icon, color: Colors.white54,size:18.0,),
-          label:Text(text),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+              colors: [
+                 Color(0xFFF9C184),
+                 Color(0xFFEA9971),
+                 Color(0xFFC83535)
+              ],
+          ),
+      ),
+      child: ElevatedButton(
+          child:Text(text),
           style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
 
-            primary:Colors.red[900],
-            //  onPrimary: Colors.white,
-            onSurface: Colors.grey,
-            shape: const BeveledRectangleBorder
-              (borderRadius: BorderRadius.all(Radius.circular(5))),
-
+              primary: Colors.transparent,
+            shadowColor: Colors.transparent,
             textStyle: TextStyle(
+
                 color: Colors.white54,
-                fontSize: 20,
+                fontSize: 23,
                 fontFamily: "Brand Bold"
                 ,fontWeight: FontWeight.bold
             ),
