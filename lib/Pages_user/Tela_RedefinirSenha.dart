@@ -17,7 +17,10 @@ class Tela_RedefinirSenha extends StatefulWidget {
 class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
   var busy = false;
   final controllerLogin = new LoginController();
+  final _formKey = GlobalKey<FormState>();
   TextEditingController email_Controller = TextEditingController();
+
+
   Redefinirsenha() {
     setState(() {
       busy = true;
@@ -88,59 +91,65 @@ class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
             ),
             child: Card(
 
-              child: Column(
+              child: Form(
+                key: _formKey,
+                child: Column(
 
-                children: <Widget>[
-                  Text("Alterar senha",
+                  children: <Widget>[
+                    Text("Alterar senha",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.red[900],
+                          fontWeight: FontWeight.w800,
+                          fontFamily: "Brand Bold",
+                        )),
+                    SizedBox(height: 5),
+                    Text(
+                      "insira o endereço de e-mail associado à sua conta, siga o link "
+                      "no e-mail enviado a você para escolher uma nova senha.",
                       style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.red[900],
-                        fontWeight: FontWeight.w800,
-                        fontFamily: "Brand Bold",
-                      )),
-                  SizedBox(height: 5),
-                  Text(
-                    "insira o endereço de e-mail associado à sua conta, siga o link "
-                    "no e-mail enviado a você para escolher uma nova senha.",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18.0,
-                      fontFamily: "Brand-Regular",
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16.0,
+                        fontFamily: "Brand-Regular",
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  CPTextFormField(
-                    Controller: email_Controller,
-                    textCapitalization: TextCapitalization.none,
-                    type: TextInputType.emailAddress,
-                    obscureText: false,
-                    labeltext:"E-mail do Usuário",
+                    SizedBox(height: 10),
+                    CPTextFormField(
+                      Controller: email_Controller,
+                      textCapitalization: TextCapitalization.none,
+                      type: TextInputType.emailAddress,
+                      obscureText: false,
+                      labeltext:"E-mail do Usuário",
 
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Digite um e-mail.';
-                      }else if(!value.contains("@")){
-                        return 'Digite um e-mail válido.';
-                      }else if(value.contains(" ")){
-                        return '*erro: e-mail contém espaço.';
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Digite um e-mail.';
+                        }else if(!value.contains("@")){
+                          return 'Digite um e-mail válido.';
+                        }else if(value.contains(" ")){
+                          return '*erro: e-mail contém espaço.';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 30),
+                    CPButton(
+                      text: "enviar",
+                      width: double.infinity,
+                      callback: () {
+                      if (_formKey.currentState.validate()) {
+                      _formKey.currentState.save();
+                        if(email_Controller.text.isNotEmpty){
+                          Redefinirsenha();
+                        }else{
+                          ToastMensagem("Digite um e-mail.", context);
+                        }
                       }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 30),
-                  CPButton(
-                    text: "enviar",
-                    width: double.infinity,
-                    callback: () {
-                      if(email_Controller.text.isNotEmpty){
-                        Redefinirsenha();
-                      }else{
-                        ToastMensagem("Digite um e-mail.", context);
-                      }
-                    },
-                  ),
-                  SizedBox(height: 10),
-                ],
+                      },
+                    ),
+                    SizedBox(height: 10),
+                  ],
+                ),
               ),
             ),
           ),

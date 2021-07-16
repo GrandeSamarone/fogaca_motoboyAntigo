@@ -228,7 +228,7 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
                                   ),
                                   ),
                                   SizedBox(height:42.0),
-                                  WIBusy(
+                                  busy?WIBusy(
                                   busy: busy,
                                   child:  Container(
                                   width:250,
@@ -242,50 +242,50 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
                                   ),
                                   ),
                                   ),
-                                  ),
+                                  ): Container(
+                                    width:250,
 
-                                Container(
-                                  width:250,
-
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Color(0xFFF9C184),
-                                        Color(0xFFEA9971)
-                                      ],
-                                    ),
-                                  ),
-                                  child: ElevatedButton(
-                                    child:Text("Criar Conta"),
-                                    style: ElevatedButton.styleFrom(
-
-                                      primary: Colors.transparent,
-                                      shadowColor: Colors.transparent,
-                                      textStyle: TextStyle(
-
-                                          color: Colors.white54,
-                                          fontSize: 23,
-                                          fontFamily: "Brand Bold"
-                                          ,fontWeight: FontWeight.bold
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xFFF9C184),
+                                          Color(0xFFEA9971)
+                                        ],
                                       ),
                                     ),
+                                    child: ElevatedButton(
+                                      child:Text("Criar Conta"),
+                                      style: ElevatedButton.styleFrom(
 
-                                    onPressed:(){
+                                        primary: Colors.transparent,
+                                        shadowColor: Colors.transparent,
+                                        textStyle: TextStyle(
+
+                                            color: Colors.white54,
+                                            fontSize: 23,
+                                            fontFamily: "Brand Bold"
+                                            ,fontWeight: FontWeight.bold
+                                        ),
+                                      ),
+
+                                      onPressed:(){
                                         if(dropDownText!="Selecione uma cidade"){
-                                      if (_formKey.currentState.validate()) {
-                                        _formKey.currentState.save();
-                                        SalvarDriveMotoInfo(context);
+                                          if (_formKey.currentState.validate()) {
+                                            _formKey.currentState.save();
+                                            SalvarDriveMotoInfo(context);
 
-                                      }
-                                      }else{
+                                          }
+                                        }else{
                                           ToastMensagem("Selecione sua cidade de trabalho.", context);
                                         }
-                                    },
+                                      },
+
+                                    ),
 
                                   ),
 
-                                ),
+
                               ]
 
                           ),
@@ -337,7 +337,6 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
 
       switch (data.toString()) {
         case "sucesso":
-          ToastMensagem("Cadastro efetuado com sucesso!", context);
           onSucess();
           return;
         case "[firebase_auth/wrong-password] The password is invalid or the user does not have a password.":

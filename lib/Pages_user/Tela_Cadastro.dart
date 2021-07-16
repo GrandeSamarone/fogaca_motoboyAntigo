@@ -49,16 +49,6 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
   bool CNPJValid = false;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  String dropDownText = 'Selecione uma cidade';
-  List <String> ItensList = [
-    'Selecione uma cidade',
-    'Ji-Paraná',
-    'Ouro Preto',
-    'Jaru',
-    'Ariquemes',
-    'Cacoal',
-    'Médici',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +90,7 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                     SizedBox(height: 20,),
                     Container(
                         width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
                         decoration:BoxDecoration(
                             borderRadius:
                             BorderRadius.only(
@@ -118,12 +109,14 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                         padding: EdgeInsets.only(
                             left: 40,
                             right: 40,
-                            bottom: 20),
+                            bottom: 20
+                        ),
                         child: Form(
                           key: _formKey,
                           child: Column(
+
                               children: [
-                                SizedBox(height: 20.0),
+                                SizedBox(height:60.0),
                                 CPTextFormField(
                                   textCapitalization: TextCapitalization.none,
                                   type: TextInputType.text,
@@ -265,7 +258,6 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                   // autofocus: true,
                                   type: TextInputType.emailAddress,
                                   obscureText: false,
-                                  maxlenght:35,
                                   labeltext:"E-mail",
                                   validator: (value) {
                                     if (value.isEmpty) {
@@ -316,7 +308,7 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                   },
                                   onSaved: (input) => _repetirsenha = input,
                                 ) :Container(),
-                                SizedBox(height: 40.0,),
+                                SizedBox(height: 50.0,),
 
                                   Container(
                                       width:250,
@@ -347,9 +339,7 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                           onPressed:(){
                                       if (_formKey.currentState.validate()) {
                                       _formKey.currentState.save();
-                                      if(dropDownText=="Selecione uma cidade"){
-                                      ToastMensagem("Selecione sua cidade de trabalho.", context);
-                                      } else if(_senha!=_repetirsenha) {
+                                      if(_senha!=_repetirsenha) {
                                       ToastMensagem("Senhas estão diferentes.", context);
                                       }else{
                                       RegistrarNovoUsuario();

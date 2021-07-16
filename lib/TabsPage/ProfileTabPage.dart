@@ -29,6 +29,7 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
   final controller = new AtualizarDadosUsuarioController();
   final controllerUser=LoginController();
   String _idUsuarioLogado;
+  var store;
   String dropdownValue = 'Selecione uma cidade';
   List <String> spinnerItems = [
     'Selecione uma cidade',
@@ -42,7 +43,7 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
 
   @override
   Widget build(BuildContext context) {
-    final store=Provider.of<StoreDadosUsuario>(context);
+    store=Provider.of<StoreDadosUsuario>(context);
     _idUsuarioLogado=store.id;
     dropdownValue=store.city;
 
@@ -419,6 +420,8 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
 
   //Açao do botao Alterar cidade
   Alterarcity(String text,String id){
+   if(!store.online_offline){
+
 
     controller.AlterarCity(text,id).then((data) {
 
@@ -430,6 +433,9 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
       ToastMensagem("Erro:${err.toString()}", context);
     }).whenComplete(() {
     });
+  }else{
+     ToastMensagem("Ficar Offline antes de trocar de cidade", context);
+   }
   }
 
 

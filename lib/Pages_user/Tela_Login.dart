@@ -53,7 +53,6 @@ class _Tela_LoginState extends State<Tela_Login> {
       print("INFORMAÇÃO RETORNADA::"+data.toString());
 
       if(data.toString()=="sucesso"){
-        ToastMensagem("Login efetuado com sucesso!", context);
         onSucessEmail();
       }else if(data.toString()=="[firebase_auth/wrong-password] The password is invalid or the user does not have a password."){
         ToastMensagem("Senha incorreta.", context);
@@ -107,6 +106,7 @@ class _Tela_LoginState extends State<Tela_Login> {
                    bottom: 40,
                  ),
                  child: Column(
+                   mainAxisAlignment: MainAxisAlignment.center,
                    children: <Widget>[
                      Container(
                        height: 490,
@@ -241,7 +241,7 @@ class _Tela_LoginState extends State<Tela_Login> {
            ),
 
 
-         /*
+
            Positioned(
              left: 0.0,
              right: 0.0,
@@ -254,11 +254,13 @@ class _Tela_LoginState extends State<Tela_Login> {
           Positioned(
           left: 0.0,
           right: 0.0,
-          bottom: -55.5,
-          child: Image.asset(
-          "imagens/Vector_bottom.png",
+          bottom: 0.0,
+          child:IgnorePointer(
+            child: Image.asset(
+            "imagens/Vector_bottom.png",
           ),
-          )*/
+          )
+          )
          ],
 
         ),
