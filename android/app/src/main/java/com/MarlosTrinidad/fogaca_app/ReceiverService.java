@@ -44,6 +44,7 @@ import com.google.gson.JsonObject;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -253,6 +254,7 @@ public class ReceiverService extends Service {
 
     }
     public void listen(String id_doc, View view){
+        try{
         final DocumentReference doc = db.collection("Pedidos").document(id_doc);
         doc.addSnapshotListener((snapshot, e) -> {
 
@@ -276,6 +278,9 @@ public class ReceiverService extends Service {
                }
             }
         });
+    }catch(Exception e){
+            System.out.println("Error " + e.getMessage());
+        }
     }
 
     public void fecharDialogo(View lm){

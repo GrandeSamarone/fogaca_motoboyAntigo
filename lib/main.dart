@@ -59,7 +59,7 @@ void main() async {
   flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-
+  final DadosFirestore=Dados_usuario();
   await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
   Function originalOnError = FlutterError.onError;
   FlutterError.onError = (FlutterErrorDetails errorDetails) async {
@@ -90,7 +90,8 @@ void main() async {
       ),
       ChangeNotifierProvider<Dados_usuario>(
         create: (_) => Dados_usuario(),
-      )
+      ),
+      StreamProvider(create: (context)=>DadosFirestore.GetClientes()),
     ], child: MyApp()),
   );
 }

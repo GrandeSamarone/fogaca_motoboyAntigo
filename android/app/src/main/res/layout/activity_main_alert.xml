@@ -72,7 +72,7 @@
                     android:fontFamily="@font/boltregular"
                     android:id="@+id/quantitens_loja"
                     android:textColor="#000"
-                    android:text="Teste Card"
+                    android:text="4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
             </LinearLayout>
@@ -86,7 +86,7 @@
                 android:layout_marginTop="20dp"
                 android:id="@+id/button_aceitar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="70dp"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

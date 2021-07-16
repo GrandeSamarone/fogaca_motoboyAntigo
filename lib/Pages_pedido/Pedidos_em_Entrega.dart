@@ -41,10 +41,7 @@ class Pedidos_em_EntregaState extends State<Pedidos_em_Entrega> {
           leading: IconButton(icon: Icon(Icons.arrow_back),
             tooltip: "",
             onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => Mapa_Home()));
+              Navigator.pop(context);
             },
           ),
           title: new Text(
@@ -63,7 +60,7 @@ class Pedidos_em_EntregaState extends State<Pedidos_em_Entrega> {
 
 
   void _moveToSignInScreen(BuildContext context) =>
-      Navigator.pushNamedAndRemoveUntil(context, Mapa_Home.idScreen, (route) => false);
+      Navigator.pop(context);
 
 }
 

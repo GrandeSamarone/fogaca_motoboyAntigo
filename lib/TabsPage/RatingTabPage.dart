@@ -14,13 +14,7 @@ import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 class RatingTabPage extends StatefulWidget {
 
-  double estrelaDouble =5.0;
-  String estrelaString;
 
-  RatingTabPage({
-    @required this.estrelaDouble,
-    @required this.estrelaString,
-  });
   @override
   _RatingTabPageState createState() => _RatingTabPageState();
 }
@@ -29,16 +23,22 @@ class _RatingTabPageState extends State<RatingTabPage> with AutomaticKeepAliveCl
 
   PushNotificacao pushNotificacao= PushNotificacao();
   Motoboy motoboyLogado=Motoboy();
-   //String estrela;
-   //double estrelaDouble;
+  String estrela;
+  double estrelaDouble;
 
 
 
   @override
   Widget build(BuildContext context) {
-
-    print("ESTRELA::${widget.estrelaString}");
-    print("ESTRELA::${widget.estrelaDouble.toString()}");
+    final motoboy=Provider.of<List<Motoboy>>(context);
+    if(motoboy!=null){
+      motoboyLogado=motoboy[0];
+      if(motoboyLogado.estrela!=null){
+        estrelaDouble = double.parse(motoboyLogado.estrela);
+      }
+      double mod = pow(10.0, 2);
+      estrela = ((estrelaDouble * mod).round().toDouble() / mod).toString();
+    }
 
 
     return Scaffold(
@@ -48,11 +48,11 @@ class _RatingTabPageState extends State<RatingTabPage> with AutomaticKeepAliveCl
 
             SizedBox(height: 200.0,),
            Center(
-            child: Text(widget.estrelaString!=null?widget.estrelaString:"",style:new TextStyle(fontSize: 65.0),),
+            child: Text(estrela!=null?estrela:"",style:new TextStyle(fontSize: 65.0),),
 
           ),
             SmoothStarRating(
-              rating:widget.estrelaDouble!=null?widget.estrelaDouble:5.0,
+              rating:estrelaDouble!=null?estrelaDouble:5.0,
               borderColor: Colors.red[800],
               color: Colors.red[800],
               isReadOnly: true,

@@ -5,6 +5,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:fogaca_app/Controllers/AtualizarDadosUsuarioController.dart';
+import 'package:fogaca_app/Controllers/LoginController.dart';
+import 'package:fogaca_app/Pages_user/Tela_Login.dart';
 import 'package:fogaca_app/Store/StoreDadosUsuario.dart';
 import 'package:fogaca_app/Widget/Toast.dart';
 
@@ -25,6 +27,7 @@ class ProfileTabPage extends StatefulWidget {
 class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveClientMixin {
 
   final controller = new AtualizarDadosUsuarioController();
+  final controllerUser=LoginController();
   String _idUsuarioLogado;
   String dropdownValue = 'Selecione uma cidade';
   List <String> spinnerItems = [
@@ -46,7 +49,6 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
     return
      Scaffold(
         body: SingleChildScrollView(
-          physics: NeverScrollableScrollPhysics(),
           padding: EdgeInsets.only(
               left: 10,
                right:10,
@@ -218,6 +220,52 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
                   ],
                 ),
                 Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Observer(builder: (_){
+                      return
+                        Text(
+                          "Sair",
+                          style: TextStyle(fontSize: 16.0),
+                        );
+                    },),
+                    TextButton.icon(
+                      icon: Icon(Icons.exit_to_app, color: Colors.redAccent),
+                      label: Text(
+                        '',
+                        style: TextStyle(color: Colors.redAccent),
+                      ),
+                      onPressed: (){
+                        NAlertDialog(
+                            dialogStyle: DialogStyle(titleDivider: true,backgroundColor:Theme.of(context).dialogBackgroundColor ),
+                            title: Text("Deseja realmente sair?"),
+                            content: Text(
+                                "Você será redirecionado para a tela de login."),
+                            actions: <Widget>[
+
+                              TextButton(child: Text("NÃO",style:
+                              TextStyle(  color: Theme.of(context).textTheme.headline4.color,),)
+                                  , onPressed: () {
+                                    Navigator.pop(context);
+                                  }),
+                              TextButton(child: Text("SIM",style:
+                              TextStyle(  color: Theme.of(context).textTheme.headline4.color,),)
+                                  , onPressed: ()async{
+                                    store.FecharDados();
+                                    controllerUser.Logout();
+                                    await FirebaseFirestore.instance.terminate();
+                                    //  await FirebaseFirestore.instance.clearPersistence();
+                                    Navigator.pushNamedAndRemoveUntil(
+                                        context, Tela_Login.idScreen, (
+                                        route) => false);
+                                  }),
+                            ]
+                        ).show(context);
+                      },
+                    )
+                  ],
+                ),
               ],
             ),
           ),

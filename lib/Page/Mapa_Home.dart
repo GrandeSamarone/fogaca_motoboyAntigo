@@ -68,14 +68,6 @@ class _HomeState extends State<Mapa_Home> with SingleTickerProviderStateMixin {
     controllerDadosUsuario=Provider.of<StoreDadosUsuario>(context);
     controllerDadosUsuario.DadosMotoboy();
 
-    reactionDisposer=  reaction((_)=>controllerDadosUsuario.estrela,
-            (valor){
-          print("estrela::${valor}");
-          estrelaDouble = double.parse(valor);
-          double mod = pow(10.0, 2);
-          estrela = ((estrelaDouble * mod).round().toDouble() / mod).toString();
-        });
-
   }
   @override
   void initState() {
@@ -103,10 +95,7 @@ class _HomeState extends State<Mapa_Home> with SingleTickerProviderStateMixin {
        children: [
          HomeTabePage(),
          EarningTabePage(),
-         RatingTabPage(
-           estrelaDouble:estrelaDouble,
-           estrelaString:estrela,
-         ),
+         RatingTabPage(),
          ProfileTabPage()
        ],
     ),

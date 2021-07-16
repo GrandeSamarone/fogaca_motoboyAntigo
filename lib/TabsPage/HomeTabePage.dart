@@ -45,7 +45,7 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
   final FirebaseMessaging firebaseMessaging=FirebaseMessaging.instance;
   var geolocator = Geolocator();
   Dados_usuario DadosMotoboy;
-
+  Motoboy motoboyLogado=Motoboy();
   Position posicao_atual;
   Dados_usuario Dados_Usuario;
   String textButton="FICAR ONLINE";
@@ -53,7 +53,8 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
   bool _OffouOnline=false;
   bool _checkar;
   bool _localizacaoAtiva;
-  String _N_Pedidos;
+  String _CodCity;
+  String _IDUsuario;
   ThemeChanger themeChanger;
   StoreDadosUsuario controllerDadosUsuario;
 
@@ -72,51 +73,6 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
   }
 
 
-  ReactionDisposer reactionDisposer;
-  void didChangeDependencies(){
-    super .didChangeDependencies();
-
-
-
-    controllerDadosUsuario=Provider.of<StoreDadosUsuario>(context);
-    controllerDadosUsuario.DadosMotoboy();
-
-
-    reactionDisposer=  reaction((_)=>controllerDadosUsuario.permissao,
-            (valor){
-              _checkar=valor;
-          print(valor);
-        });
-    reactionDisposer= reaction((_)=>controllerDadosUsuario.codcity,
-            (valor){
-        });
-    reactionDisposer= reaction((_)=>controllerDadosUsuario.online_offline,
-            (valor){
-              _OffouOnline=valor;
-
-              if(_OffouOnline){
-                setState(() {
-                  ColorButton=Colors.redAccent[700];
-                  textButton="FICAR OFFLINE";
-
-                });
-
-              }else{
-                setState(() {
-                  ColorButton=Colors.greenAccent[700];
-                  textButton="FICAR ONLINE";
-                });
-
-              }
-        });
-  }
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    reactionDisposer();
-   // controllerDadosUsuario.FecharDados();
-    super.dispose();
-  }
 
 
   @override
@@ -124,7 +80,59 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
     themeChanger = Provider.of<ThemeChanger>(context, listen: false);
     VerificarLocalizacao();
     DadosMotoboy=Provider.of<Dados_usuario>(context);
+   // controllerDadosUsuario=Provider.of<StoreDadosUsuario>(context);
+   // controllerDadosUsuario.DadosMotoboy();
+   final motoboy=Provider.of<List<Motoboy>>(context);
+   // final store=Provider.of<StoreDadosUsuario>(context);
+    /*  if(store!=null){
+    //  motoboyLogado=motoboy[0];
+      _OffouOnline=store.online_offline;
+      _checkar=store.permissao;
+      _IDUsuario=store.id;
+      _CodCity=store.codcity;
+      print("dados::"+_CodCity+""+_IDUsuario+""+_OffouOnline.toString()+""+_checkar.toString());
 
+      if(_OffouOnline){
+        setState(() {
+          ColorButton=Colors.redAccent[700];
+          textButton="FICAR OFFLINE";
+
+        });
+
+      }else{
+        setState(() {
+          ColorButton=Colors.greenAccent[700];
+          textButton="FICAR ONLINE";
+        });
+
+      }
+
+    }*/
+    if(motoboy!=null){
+      motoboyLogado=motoboy[0];
+      _OffouOnline=motoboyLogado.online;
+      _checkar=motoboyLogado.permissao;
+      _IDUsuario=motoboyLogado.id;
+      _CodCity=motoboyLogado.cod;
+
+      if(_OffouOnline){
+        setState(() {
+          ColorButton=Colors.redAccent[700];
+          textButton="FICAR OFFLINE";
+
+        });
+
+      }else{
+        setState(() {
+          ColorButton=Colors.greenAccent[700];
+          textButton="FICAR ONLINE";
+        });
+
+      }
+
+    }
+   // print("PERMISSAO:::${controllerDadosUsuario.permissao}");
+  //  print("ONLINE:::${controllerDadosUsuario.online_offline}");
 
     // TODO: implement build
     return  Stack(
@@ -258,15 +266,15 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
   }
   void makeDriveOnlineNow() async{
 
-    firebaseMessaging.subscribeToTopic(controllerDadosUsuario.codcity);
+   // firebaseMessaging.subscribeToTopic(_CodCity);
     DatabaseReference MotoboyRequest=FirebaseDatabase.instance.reference().child("MotoboysOnline")
-        .child(controllerDadosUsuario.id);
+        .child(_IDUsuario);
     posicao_atual = await geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
     if(_OffouOnline) {
       Geofire.initialize("MotoboysOnline");
       Geofire.setLocation(
-          controllerDadosUsuario.id, posicao_atual.latitude, posicao_atual.longitude);
+          _IDUsuario, posicao_atual.latitude, posicao_atual.longitude);
 
 
       MotoboyRequest.onValue.listen((event) {
@@ -281,7 +289,7 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
 
       posicao_atual=position;
       if(_OffouOnline){
-        Geofire.setLocation(controllerDadosUsuario.id, position.latitude, position.longitude);
+        Geofire.setLocation(_IDUsuario, position.latitude, position.longitude);
       }
       LatLng latLng=LatLng(position.latitude, position.longitude);
 
@@ -294,11 +302,11 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
   }
 
   Future<void> DeletarLocMotoboyDatabase() {
-    firebaseMessaging.unsubscribeFromTopic(controllerDadosUsuario.codcity);
+    //firebaseMessaging.unsubscribeFromTopic(_CodCity);
     //MotoboysOnline
     DatabaseReference MotoboyRequest=FirebaseDatabase.instance.reference().child("MotoboysOnline")
-        .child(controllerDadosUsuario.id);
-    Geofire.removeLocation(controllerDadosUsuario.id);
+        .child(_IDUsuario);
+    Geofire.removeLocation(_IDUsuario);
     Geofire.stopListener();
     MotoboyRequest.onDisconnect();
     MotoboyRequest.remove();
@@ -316,31 +324,10 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
 
   void VerificandoDados()async {
     if(_checkar){
-
       if(_OffouOnline){
-        ToastMensagem("Não receberá pedidos.", context);
-        Wakelock.disable();
-        _OffouOnline=false;
-        Geofire.stopListener();
-        Atualizar_Online_Offline(false);
-        DeletarLocMotoboyDatabase();
-        MethodChannel serviceChannel = MethodChannel("motoboy");
-        serviceChannel.invokeMethod("stopService");
+       Ficar_Offline();
       }else{
-        ServiceStatus serviceStatus = await Permission.location.serviceStatus;
-        _localizacaoAtiva = (serviceStatus == ServiceStatus.enabled);
-        if(_localizacaoAtiva){
-          Wakelock.enable();
-          Atualizar_Online_Offline(true);
-          ToastMensagem("Buscando...", context);
-          makeDriveOnlineNow();
-          getLocationLiveUpdates();
-          MethodChannel serviceChannel = MethodChannel("motoboy");
-          serviceChannel.invokeMethod("startService");
-
-        }else{
-          ToastMensagem("Ative seu GPS antes de começar a aceitar pedidos.", context);
-        }
+      Ficar_Online();
 
       }
     }else{
@@ -375,7 +362,34 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
 
   }
 
+Future<void>Ficar_Online()async{
+  firebaseMessaging.subscribeToTopic(_CodCity);
+  ServiceStatus serviceStatus = await Permission.location.serviceStatus;
+  _localizacaoAtiva = (serviceStatus == ServiceStatus.enabled);
+  if(_localizacaoAtiva){
+    Wakelock.enable();
+    _OffouOnline=true;
+    Atualizar_Online_Offline(true);
+    ToastMensagem("Buscando...", context);
+    // makeDriveOnlineNow();
+    // getLocationLiveUpdates();
+    MethodChannel serviceChannel = MethodChannel("motoboy");
+    serviceChannel.invokeMethod("startService");
 
+  }else{
+    ToastMensagem("Ative seu GPS antes de começar a aceitar pedidos.", context);
+  }
+}Future<void>Ficar_Offline()async{
+    firebaseMessaging.unsubscribeFromTopic(_CodCity);
+    ToastMensagem("Não receberá pedidos.", context);
+    Wakelock.disable();
+    _OffouOnline=false;
+    Atualizar_Online_Offline(false);
+    // Geofire.stopListener();
+    //  DeletarLocMotoboyDatabase();
+    MethodChannel serviceChannel = MethodChannel("motoboy");
+    serviceChannel.invokeMethod("stopService");
+}
   _launchWhatsapp() async {
     const url = "https://api.whatsapp.com/send?phone=556992417580&text=ol%C3%A1";
     if (await canLaunch(url)) {

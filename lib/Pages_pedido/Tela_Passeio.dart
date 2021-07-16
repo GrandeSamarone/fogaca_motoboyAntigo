@@ -82,7 +82,7 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
   @override
   Widget build(BuildContext context) {
     themeChanger = Provider.of<ThemeChanger>(context, listen: false);
-    changeMapMode();
+
     pushNotificacao.initialize(context);
     verificarEstado();
     if(widget.detalheCorrida["situacao"]=="Saiu para entrega"){
@@ -107,7 +107,39 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
                     ),
                   ),
                 ),
-
+                Positioned(
+                  top: 45.0,
+                  left: 22.0,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        //   color: Colors.white,
+                          borderRadius: BorderRadius.circular(22.0),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Theme.of(context).dialogBackgroundColor,
+                                // color: Theme.of(context).textTheme.headline4.color,
+                                blurRadius: 6.0,
+                                spreadRadius: 0.5,
+                                offset: Offset(
+                                  0.7,
+                                  0.7,
+                                ))
+                          ]),
+                      //botao do drewaer
+                      child: CircleAvatar(
+                        //  backgroundColor: Colors.white,
+                        child: Icon(
+                          Icons.arrow_back, /*color: Colors.black*/
+                        ),
+                        radius: 20.0,
+                      ),
+                    ),
+                  ),
+                ),
                 Positioned(
                   left: 0.0,
                   right: 0.0,
@@ -676,23 +708,9 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
   }
 
 
-  changeMapMode() {
-    if (themeChanger.isDark()) {
-      getJsonFile("imagens/maps_styles/mapsdark.json").then(setMapStyle);
-    } else {
-      getJsonFile("imagens/maps_styles/mapslight.json").then(setMapStyle);
-    }
-  }
 
-  Future<String> getJsonFile(String path) async {
-    return await rootBundle.loadString(path);
-  }
-
-  void setMapStyle(String mapStyle) {
-    controller_Maps.setMapStyle(mapStyle);
-  }
   void _moveToSignInScreen(BuildContext context) =>
-      Navigator.pushNamedAndRemoveUntil(context, Pedidos_em_Entrega.idScreen, (route) => false);
+     Navigator.pop(context);
 
 
 }
