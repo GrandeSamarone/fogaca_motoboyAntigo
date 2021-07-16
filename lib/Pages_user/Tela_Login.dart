@@ -42,6 +42,51 @@ class _Tela_LoginState extends State<Tela_Login> {
 
   var encoded = Uri.encodeFull(Tela_Login.url);
 
+  //Açao do botao Login
+  SignInEmail(){
+
+    setState(() {
+      busy=true;
+    });
+    controllerLogin.LoginEmail(_email,_senha).then((data) {
+
+      print("INFORMAÇÃO RETORNADA::"+data.toString());
+
+      if(data.toString()=="sucesso"){
+        ToastMensagem("Login efetuado com sucesso!", context);
+        onSucessEmail();
+      }else if(data.toString()=="[firebase_auth/wrong-password] The password is invalid or the user does not have a password."){
+        ToastMensagem("Senha incorreta.", context);
+      }else if(data.toString()=="[firebase_auth/user-not-found] There is no user record corresponding to this identifier. The user may have been deleted."){
+        ToastMensagem("Conta não cadastrada.", context);
+      }else if(data.toString()=="esta conta não existe."){
+        ToastMensagem("esta conta nao existe.", context);
+      }
+
+    }).catchError((err){
+      print("ERROR!!!"+err.toString());
+      onErrorEmail(err.toString());
+    }).whenComplete(() {
+      onCompleteEmail();
+    });
+
+
+  }
+  onSucessEmail(){
+
+    Navigator.push(context, MaterialPageRoute(
+        builder:(context)=>SplashScreen()));
+  }
+  onErrorEmail(String erro){
+    print("Erro::"+erro);
+  }
+  onCompleteEmail(){
+
+    setState(() {
+      busy=false;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +101,7 @@ class _Tela_LoginState extends State<Tela_Login> {
                  height: constraints.maxHeight / 1,
 
                  padding: EdgeInsets.only(
-                   top: 80,
+                   top: 60,
                    left: 20,
                    right: 20,
                    bottom: 40,
@@ -64,7 +109,7 @@ class _Tela_LoginState extends State<Tela_Login> {
                  child: Column(
                    children: <Widget>[
                      Container(
-                       height: 480,
+                       height: 490,
                        decoration: BoxDecoration(
                          color:Color(0xFFFDFDFD),
                          boxShadow: [
@@ -78,8 +123,8 @@ class _Tela_LoginState extends State<Tela_Login> {
                        ),
                        child: Padding(
                          padding: EdgeInsets.only(
-                           left: 20,
-                           right: 20,
+                           left: 30,
+                           right: 30,
                            top: 20,
                          ),
                          child: Form(
@@ -91,7 +136,7 @@ class _Tela_LoginState extends State<Tela_Login> {
                                  height: 120,
                                ),
                                SizedBox(
-                                 height:20,
+                                 height:10,
                                ),
                                CPTextFormField(
                                  textCapitalization: TextCapitalization.none,
@@ -130,12 +175,13 @@ class _Tela_LoginState extends State<Tela_Login> {
                                  onSaved: (input) => _senha = input,
                                ),
 
-                               SizedBox(height:10),
+                               SizedBox(height:5),
                                Container(
                                  alignment: Alignment.centerRight,
                                  child:CPButtonText(
                                    text:"Esqueceu a senha?",
                                    callback:(){
+                                     ToastMensagem("Click", context);
                                      Navigator.push(context,MaterialPageRoute(
                                          builder:(context)=>Tela_RedefinirSenha()
                                      ),
@@ -149,10 +195,10 @@ class _Tela_LoginState extends State<Tela_Login> {
                                  child: CPButton(text: "Entrar",
                                    width: double.infinity,
                                    callback: (){
-
+                                     ToastMensagem("Click", context);
                                      if (_formKey.currentState.validate()) {
                                        _formKey.currentState.save();
-
+                                         SignInEmail();
                                      }
                                    },
                                  ),
@@ -169,10 +215,12 @@ class _Tela_LoginState extends State<Tela_Login> {
                                            fontWeight: FontWeight.w100,
                                          )
                                      ) ,
+
                                      CPButtonText(
                                        text: "Cadastre-se",
 
                                        callback:(){
+                                         ToastMensagem("Click", context);
                                          Navigator.push(context,MaterialPageRoute(
                                              builder:(context)=>Tela_Cadastro()
                                          ),
@@ -194,6 +242,9 @@ class _Tela_LoginState extends State<Tela_Login> {
                );
              },
            ),
+
+
+         /*
            Positioned(
              left: 0.0,
              right: 0.0,
@@ -202,14 +253,15 @@ class _Tela_LoginState extends State<Tela_Login> {
                "imagens/Vector_top.png",
              ),
            ),
+
           Positioned(
           left: 0.0,
           right: 0.0,
-          bottom: 0.0,
+          bottom: -55.5,
           child: Image.asset(
           "imagens/Vector_bottom.png",
           ),
-          )
+          )*/
          ],
 
         ),
