@@ -7,7 +7,7 @@ import 'package:fogaca_app/Controllers/LoginController.dart';
 import 'package:fogaca_app/Widget/Toast.dart';
 import 'package:fogaca_app/Widget/WIBusy.dart';
 
-import 'Tela_SucessoSenha.dart';
+import 'Tela_Login.dart';
 
 class Tela_RedefinirSenha extends StatefulWidget {
   @override
@@ -20,7 +20,7 @@ class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController email_Controller = TextEditingController();
 
-
+  var sucesso=false;
   Redefinirsenha() {
     setState(() {
       busy = true;
@@ -28,28 +28,22 @@ class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
     controllerLogin
         .sendPasswordResetEmail(email_Controller.text)
         .then((dados_retornados) {
-      onSucessGoogle();
+      onSucessReset();
     }).catchError((err) {
-      onErrorGoogle(err.toString());
+      onErrorReset(err.toString());
     }).whenComplete(() {
-      onCompleteGoogle();
+      onCompleteReset;
     });
   }
 
-  onSucessGoogle() {
+  onSucessReset() {
     setState(() {
-      //ToastMensagem("Enviado com Sucesso!", context);
+      sucesso=true;
     });
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Tela_SucessoSenha(),
-      ),
-    );
   }
 
-  onErrorGoogle(String erro) {
+  onErrorReset(String erro) {
     if (erro ==
         "[firebase_auth/too-many-requests] We have blocked all requests from this device due to unusual activity. Try again later.") {
       ToastMensagem(
@@ -62,7 +56,7 @@ class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
     print("Dados Retornados::" + erro);
   }
 
-  onCompleteGoogle() {
+  onCompleteReset() {
     setState(() {
       busy = false;
     });
@@ -82,7 +76,7 @@ class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
       body: SingleChildScrollView(
         child: WIBusy(
           busy: busy,
-          child: Container(
+          child:sucesso==false? Container(
             padding: EdgeInsets.only(
               top: 40,
               left: 20,
@@ -148,6 +142,51 @@ class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
                       },
                     ),
                     SizedBox(height: 10),
+                  ],
+                ),
+              ),
+            ),
+          ):Container(
+            padding:EdgeInsets.only(
+              top: 40,
+              left:20,
+              right:20,
+              bottom: 40,
+            ),
+            child: Card(
+              child: Padding(
+                padding: EdgeInsets.only(
+                    left: 5,
+                    right: 5
+                ),
+                child: Column(
+                  children:<Widget> [
+                    Text(
+                        "Enviado com sucesso!",
+                        style: TextStyle(
+                          fontSize:20,
+                          color: Colors.red[900],
+                          fontWeight:FontWeight.w800 ,
+                          fontFamily: "Brand Bold",)
+                    ) ,
+                    SizedBox(height:5),
+                    Text(
+                      "voçê receberá um e-mail com link ,verifique sua caixa de mensagem.",
+                      style: TextStyle(
+                        fontWeight:FontWeight.w700 ,
+                        fontSize: 18.0,
+                        fontFamily: "Brand Bold",
+                      ),
+                    ),
+                    SizedBox(height:30),
+                    CPButton(text: "Fechar",
+                      width: double.infinity,
+                      callback: (){
+                        Navigator.pushNamedAndRemoveUntil(context, Tela_Login.idScreen, (route) => false);
+                      },
+                    ),
+
+                    SizedBox(height:10),
                   ],
                 ),
               ),

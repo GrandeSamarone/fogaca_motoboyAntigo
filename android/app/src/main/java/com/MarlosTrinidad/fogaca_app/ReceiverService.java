@@ -263,7 +263,7 @@ public class ReceiverService extends Service {
                 Log.w(TAG, "Listen failed.", e);
                 return;
             }
-
+              try{
             if (snapshot != null && snapshot.exists() && snapshot.get("situacao") != null) {
                 Log.i("CORRIDA", snapshot.get("situacao").toString());
                if(snapshot.get("situacao").toString().equals("Corrida Aceita")){
@@ -277,6 +277,9 @@ public class ReceiverService extends Service {
                    return;
                }
             }
+              }catch (Exception erro){
+                  System.out.println("Error " + erro.getMessage());
+              }
         });
     }catch(Exception e){
             System.out.println("Error " + e.getMessage());

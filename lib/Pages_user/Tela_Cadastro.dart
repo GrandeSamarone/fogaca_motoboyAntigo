@@ -116,7 +116,7 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                           child: Column(
 
                               children: [
-                                SizedBox(height:60.0),
+                                SizedBox(height:40.0),
                                 CPTextFormField(
                                   textCapitalization: TextCapitalization.none,
                                   type: TextInputType.text,
@@ -158,7 +158,8 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                   width: MediaQuery.of(context).size.width,
                                   child:Text(
                                     "Selecione uma  opção:",
-                                    style: TextStyle(fontSize: 15.0,
+                                    style: TextStyle(
+                                      fontSize: 15.0,
                                       fontFamily: "Brand Bold",
                                       fontWeight:FontWeight.w400,
                                     ),
