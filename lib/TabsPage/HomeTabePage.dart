@@ -114,7 +114,7 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
   void dispose() {
     // TODO: implement dispose
     reactionDisposer();
-    controllerDadosUsuario.FecharDados();
+   // controllerDadosUsuario.FecharDados();
     super.dispose();
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fogaca_app/Components/CPButtonVermelho.comp.dart';
 import 'package:fogaca_app/Components/CPTextField.dart';
+import 'package:fogaca_app/Components/CPTextFormField.dart';
 import 'package:fogaca_app/Controllers/LoginController.dart';
 import 'package:fogaca_app/Widget/Toast.dart';
 import 'package:fogaca_app/Widget/WIBusy.dart';
@@ -86,7 +87,9 @@ class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
               bottom: 40,
             ),
             child: Card(
+
               child: Column(
+
                 children: <Widget>[
                   Text("Alterar senha",
                       style: TextStyle(
@@ -102,21 +105,38 @@ class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 18.0,
-                      fontFamily: "Brand Bold",
+                      fontFamily: "Brand-Regular",
                     ),
                   ),
                   SizedBox(height: 10),
-                  CPTextField(
-                    labeltext: "E-mail",
-                    type: TextInputType.emailAddress,
+                  CPTextFormField(
                     Controller: email_Controller,
+                    textCapitalization: TextCapitalization.none,
+                    type: TextInputType.emailAddress,
+                    obscureText: false,
+                    labeltext:"E-mail do Usuário",
+
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Digite um e-mail.';
+                      }else if(!value.contains("@")){
+                        return 'Digite um e-mail válido.';
+                      }else if(value.contains(" ")){
+                        return '*erro: e-mail contém espaço.';
+                      }
+                      return null;
+                    },
                   ),
                   SizedBox(height: 30),
                   CPButton(
                     text: "enviar",
                     width: double.infinity,
                     callback: () {
-                      Redefinirsenha();
+                      if(email_Controller.text.isNotEmpty){
+                        Redefinirsenha();
+                      }else{
+                        ToastMensagem("Digite um e-mail.", context);
+                      }
                     },
                   ),
                   SizedBox(height: 10),

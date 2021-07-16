@@ -316,7 +316,7 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                   },
                                   onSaved: (input) => _repetirsenha = input,
                                 ) :Container(),
-                                SizedBox(height: 20.0,),
+                                SizedBox(height: 40.0,),
 
                                   Container(
                                       width:250,
