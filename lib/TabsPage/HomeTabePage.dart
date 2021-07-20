@@ -15,6 +15,7 @@ import 'package:fogaca_app/Notificacao/NotificacaoDialog.dart';
 import 'package:fogaca_app/Notificacao/PushNotificacao.dart';
 import 'package:fogaca_app/Page/Mapa_Home.dart';
 import 'package:fogaca_app/Store/StoreDadosUsuario.dart';
+import 'package:fogaca_app/Widget/WIDialog.dart';
 import 'package:fogaca_app/Widget/WIListPorData.dart';
 import 'package:mobx/mobx.dart';
 import '../Pages_pedido/Pedidos_em_Entrega.dart';
@@ -324,63 +325,72 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
 
   void VerificandoDados()async {
     if(_checkar){
+    if(_localizacaoAtiva){
       if(_OffouOnline){
        Ficar_Offline();
       }else{
       Ficar_Online();
 
       }
-    }else{
-      NAlertDialog(
-          dialogStyle: DialogStyle(
-              titleDivider: true,
-              backgroundColor: Theme
-                  .of(context)
-                  .dialogBackgroundColor),
-          title: Text(
-              "Atenção"),
-          content: Text(
-              "Para ter sua conta liberada  por favor entrar em contato conosco pelo whatsapp."),
-          actions: <Widget>[
 
-            TextButton(
-                child: Text("Falar agora",style:
-                TextStyle( color:Theme.of(context).textTheme.headline4.color,))
-                , onPressed: () {
-              //abrir a conversa da aline;
-              _launchWhatsapp();
-              Navigator.pop(context);
-            }),
-            TextButton(child: Text("Depois",style:
-            TextStyle( color:Theme.of(context).textTheme.headline4.color,))
-                , onPressed: () {
-                  Navigator.pop(context);
-                }),
-          ]
-      ).show(context);
+  }else{
+      ToastMensagem("Ative seu GPS antes de começar a aceitar pedidos.", context);
     }
+  }else{
+      showDialog(
+          context:context,
+          builder: (BuildContext context)=>WIDialog(
+              titulo: "Atenção",
+              msg: "Para ter sua conta liberada  por favor entrar em contato conosco pelo whatsapp.",
+              txtButton:"Falar agora",
+              funcao:(){
+                _launchWhatsapp();
+                Navigator.pop(context);
+              }) );
 
+    }
   }
 
 Future<void>Ficar_Online()async{
-  firebaseMessaging.subscribeToTopic(_CodCity);
   ServiceStatus serviceStatus = await Permission.location.serviceStatus;
   _localizacaoAtiva = (serviceStatus == ServiceStatus.enabled);
-
-  if(_localizacaoAtiva){
-    Wakelock.enable();
-    _OffouOnline=true;
-    Atualizar_Online_Offline(true);
-    ToastMensagem("Buscando...", context);
-    // makeDriveOnlineNow();
-    // getLocationLiveUpdates();
     MethodChannel serviceChannel = MethodChannel("motoboy");
-    serviceChannel.invokeMethod("startService");
-
+    serviceChannel.invokeMethod("checkOverlay").then((value){
+      print("RETORNO CHECKOVERLAY::${value}");
+    if(value==true){
+      print("RETORNO CHECKOVERLAY2::${value}");
+        firebaseMessaging.subscribeToTopic(_CodCity);
+        Wakelock.enable();
+        _OffouOnline=true;
+        Atualizar_Online_Offline(true);
+        ToastMensagem("Buscando...", context);
+        // makeDriveOnlineNow();
+        // getLocationLiveUpdates();
+        MethodChannel serviceChannel = MethodChannel("motoboy");
+        serviceChannel.invokeMethod("startService");
   }else{
-    ToastMensagem("Ative seu GPS antes de começar a aceitar pedidos.", context);
+      showDialog(
+          context:context,
+          builder: (BuildContext context)=>WIDialog(
+              titulo: "Atenção",
+              msg: "Para receber corridas é preciso autorização para sobrepor outros aplicativos.",
+               txtButton:"Ok,entendi.",
+               funcao:(){
+                 MethodChannel serviceChannel = MethodChannel("motoboy");
+                 serviceChannel.invokeMethod("ativarOverlay");
+                 Navigator.pop(context);
+               }) );
+    }
+
+  });
+
+
+
+
+
+
   }
-}Future<void>Ficar_Offline()async{
+Future<void>Ficar_Offline()async{
     firebaseMessaging.unsubscribeFromTopic(_CodCity);
     ToastMensagem("Não receberá pedidos.", context);
     Wakelock.disable();

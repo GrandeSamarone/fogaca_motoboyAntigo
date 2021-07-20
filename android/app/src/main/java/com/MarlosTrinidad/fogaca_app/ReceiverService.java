@@ -287,9 +287,13 @@ public class ReceiverService extends Service {
     }
 
     public void fecharDialogo(View lm){
+        try{
         mp.stop();
         mp.reset();
         wm.removeView(lm);
+        }catch(Exception e){
+
+        }
 
     }
 
