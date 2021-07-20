@@ -644,7 +644,7 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
     ToastMensagem("Pedido Finalizado.", context);
     // AssistenciaMetodo.sendNotificationToDriver(widget.detalheCorrida,texto);
     //  GeofireAssistencia.List_motoboysProximos.clear();
-    Navigator.pushNamedAndRemoveUntil(context, Pedidos_em_Entrega.idScreen, (route) => false);
+    Navigator.pop(context);
   }
   Future<void> MotoboyChegou(String texto) {
     Map<String,dynamic> dados=Map();

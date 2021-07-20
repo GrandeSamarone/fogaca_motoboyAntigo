@@ -366,6 +366,7 @@ Future<void>Ficar_Online()async{
   firebaseMessaging.subscribeToTopic(_CodCity);
   ServiceStatus serviceStatus = await Permission.location.serviceStatus;
   _localizacaoAtiva = (serviceStatus == ServiceStatus.enabled);
+
   if(_localizacaoAtiva){
     Wakelock.enable();
     _OffouOnline=true;

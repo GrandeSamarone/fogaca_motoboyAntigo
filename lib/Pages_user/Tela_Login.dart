@@ -73,8 +73,7 @@ class _Tela_LoginState extends State<Tela_Login> {
   }
   onSucessEmail(){
 
-    Navigator.push(context, MaterialPageRoute(
-        builder:(context)=>SplashScreen()));
+    Navigator.pushNamedAndRemoveUntil(context, SplashScreen.idScreen, (route) => false);
   }
   onErrorEmail(String erro){
     print("Erro::"+erro);
