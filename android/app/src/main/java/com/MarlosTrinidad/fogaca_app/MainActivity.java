@@ -39,8 +39,16 @@ public class MainActivity extends FlutterActivity {
                             }catch (Exception e){
 
                             }
+                        
+                    }else if(call.method.equals("checkOverlay")){
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            if(!Settings.canDrawOverlays(getApplicationContext())) {
+                                result.success(false);
+                            }else result.success(true);
+
                         }
                     }
+                }
                 });
     }
 
