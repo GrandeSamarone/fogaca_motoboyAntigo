@@ -354,6 +354,7 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
 Future<void>Ficar_Online()async{
   ServiceStatus serviceStatus = await Permission.location.serviceStatus;
   _localizacaoAtiva = (serviceStatus == ServiceStatus.enabled);
+
     MethodChannel serviceChannel = MethodChannel("motoboy");
     serviceChannel.invokeMethod("checkOverlay").then((value){
       print("RETORNO CHECKOVERLAY::${value}");
