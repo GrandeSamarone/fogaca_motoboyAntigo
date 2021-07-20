@@ -195,7 +195,7 @@ public class ReceiverService extends Service {
 
         }catch (Exception e){
 
-            Log.i("Erro::",e.toString());
+            System.out.println("ErrorSong " + e.getMessage());
         }
     }
 
@@ -252,6 +252,7 @@ public class ReceiverService extends Service {
         super.onDestroy();
         mp.release();
 
+
     }
     public void listen(String id_doc, View view){
         try{
@@ -288,11 +289,11 @@ public class ReceiverService extends Service {
 
     public void fecharDialogo(View lm){
         try{
+        wm.removeView(lm);
         mp.stop();
         mp.reset();
-        wm.removeView(lm);
         }catch(Exception e){
-
+            System.out.println("Error " + e.getMessage());
         }
 
     }
