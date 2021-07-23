@@ -64,9 +64,15 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
                     CircleAvatar(
                         radius: 80,
                         backgroundColor: Colors.grey,
+                        onBackgroundImageError: (exception, stackTrace){
+                          return Container(
+                            child: CircularProgressIndicator(),
+                          );
+                        },
                         backgroundImage: store.foto != null
                             ? NetworkImage(store.foto)
-                            : null
+                            : NetworkImage("https://firebasestorage.googleapis.com/v0/b/fogaca-app.appspot.com/o/perfil%2Ficonusernfoto.jpg?alt=media&token=370e2f4a-a059-453e-a2f3-a4d8e5d7d7ef")
+
 
                     );
                 },),
@@ -224,13 +230,10 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Observer(builder: (_){
-                      return
                         Text(
                           "Sair",
                           style: TextStyle(fontSize: 16.0),
-                        );
-                    },),
+                        ),
                     TextButton.icon(
                       icon: Icon(Icons.exit_to_app, color: Colors.redAccent),
                       label: Text(

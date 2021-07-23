@@ -47,6 +47,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -55,7 +56,7 @@ import java.util.Map;
 import static com.github.florent37.assets_audio_player.notification.NotificationService.CHANNEL_ID;
 import static io.flutter.plugins.firebase.auth.Constants.TAG;
 
-public class ReceiverService extends Service {
+public class ReceiverService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
     DatagramSocket server;
     Handler hand;
 
@@ -122,7 +123,13 @@ public class ReceiverService extends Service {
             public void run() {
                 super.run();
                 try {
-                    server = new DatagramSocket(3306);
+                    if (server == null) {
+                        server = new DatagramSocket(null);
+                        server.setReuseAddress(true);
+                        server.setBroadcast(true);
+                        server.bind(new InetSocketAddress(3306));
+                    }
+                    //server = new DatagramSocket(3306);
                     while (true){
 
                         DatagramPacket packet = new DatagramPacket(receiveData, receiveData.length);
@@ -185,13 +192,18 @@ public class ReceiverService extends Service {
 
     public void playSong(){
         try{
-            mp.reset();
+
+           // mp.reset();
 
             AssetFileDescriptor song = getResources().getAssets().openFd("somsino.mp3");
             mp.setDataSource(song.getFileDescriptor(), song.getStartOffset(), song.getLength());
             mp.setLooping(true);
-            mp.prepare();
-            mp.start();
+            mp.setOnPreparedListener(this);
+            mp.setOnCompletionListener(this);
+            mp.prepareAsync();
+
+           // mp.prepare();
+          //  mp.start();
 
         }catch (Exception e){
 
@@ -235,7 +247,7 @@ public class ReceiverService extends Service {
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
+        Log.i("onStartCommand",intent.getAction()+" "+flags+" "+startId);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             startMyOwnForeground();
         else
@@ -249,8 +261,8 @@ public class ReceiverService extends Service {
 
     @Override
     public void onDestroy() {
+        stopPlaying();
         super.onDestroy();
-        mp.release();
 
 
     }
@@ -321,4 +333,21 @@ public class ReceiverService extends Service {
         });
     }
 
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        mp.start();
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        mp.release();
+    }
+
+    private void stopPlaying() {
+        if (mp != null) {
+            mp.stop();
+            mp.release();
+            mp = null;
+        }
+    }
 }

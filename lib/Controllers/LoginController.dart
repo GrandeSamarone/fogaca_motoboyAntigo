@@ -91,9 +91,11 @@ class LoginController{
 
   Future Logout()async{
     await FirebaseAuth.instance.signOut();
+    await FirebaseFirestore.instance.clearPersistence().whenComplete((){
+      _googleSignIn.signOut();
+      _motoboy=new Motoboy();
+    });
 
-    _googleSignIn.signOut();
-    _motoboy=new Motoboy();
   }
 
   Future sendPasswordResetEmail(String email) async {

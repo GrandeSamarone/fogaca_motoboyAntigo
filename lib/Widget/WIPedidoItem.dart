@@ -31,7 +31,13 @@ class WIPedidoItem extends StatelessWidget {
                   width: 50,
                   height: 50,
                   fit: BoxFit.cover,
+                errorBuilder:  (context,exception, stackTrace){
+                  return Container(
+                    child: CircularProgressIndicator(),
+                  );
+                },
                 ),
+
               ),
 
               title: new Text(
