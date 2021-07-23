@@ -11,6 +11,8 @@ import android.content.res.AssetFileDescriptor;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Handler;
@@ -123,6 +125,7 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
             public void run() {
                 super.run();
                 try {
+
                     if (server == null) {
                         server = new DatagramSocket(null);
                         server.setReuseAddress(true);
@@ -173,7 +176,6 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
             lm.findViewById(R.id.button_aceitar).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     aceitarCorrida(lm, id_doc);
                 }
             });
@@ -310,7 +312,18 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
 
     }
 
+
+
+
+
     public void aceitarCorrida(View lm, String doc){
+        //Verificando se tem net
+        ConnectivityManager cm = (ConnectivityManager)ReceiverService.this.getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
+        //caso tenha ele deixa passar
+        if(isConnected){
 
         Map<String, Object> map = new HashMap<>();
         map.put("situacao","Corrida Aceita");
@@ -326,11 +339,15 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                if(task.isSuccessful()){
-                   Toast.makeText(ReceiverService.this.getBaseContext(), "Pedido Aceito", Toast.LENGTH_SHORT).show();
+                   Toast.makeText(ReceiverService.this.getBaseContext(), "Pedido Aceito", Toast.LENGTH_LONG).show();
                    fecharDialogo(lm);
                }else Toast.makeText(ReceiverService.this.getBaseContext(), "Não foi possível aceitar pedido", Toast.LENGTH_SHORT).show();
             }
         });
+    }else{
+            Toast.makeText(ReceiverService.this.getBaseContext(), "Sem Conexão com a internet.", Toast.LENGTH_LONG).show();
+
+        }
     }
 
     @Override

@@ -137,7 +137,7 @@ class MyApp extends StatelessWidget {
         // accentColor:Colors.redAccent,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      themeMode: darkThemeEnabled ? ThemeMode.dark : ThemeMode.light,
+      themeMode:ThemeMode.dark,
       debugShowCheckedModeBanner: false,
       title: "Fogaça Motoboys",
       //verificando se o usuario esta logado

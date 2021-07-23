@@ -162,6 +162,7 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                       fontSize: 15.0,
                                       fontFamily: "Brand Bold",
                                       fontWeight:FontWeight.w400,
+                                      color: Colors.black45
                                     ),
                                     textAlign: TextAlign.start,
                                   ),
@@ -171,7 +172,12 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                 new Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: <Widget>[
-                                    new Checkbox(
+                                    new Theme(
+                                      data: Theme.of(context).copyWith(
+                                        unselectedWidgetColor: Colors.black45,
+                                      ),child:Checkbox(
+                                      activeColor: Colors.red[900],
+                                      checkColor:  Colors.white,
                                       value: CPFValid,
                                       onChanged: (bool value) {
                                         setState(() {
@@ -182,13 +188,21 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                         });
                                       },
                                     ),
+                                    ),
                                     new Text(
                                       'CPF',
                                       style: new TextStyle(
+                                        color: Colors.black45,
                                         fontWeight:FontWeight.w400,
                                         fontSize: 12,),
                                     ),
-                                    new  Checkbox(
+                                    new Theme(
+                                      data: Theme.of(context).copyWith(
+                                        unselectedWidgetColor: Colors.black45,
+                                      ),child:Checkbox(
+
+                                      activeColor: Colors.red[900],
+                                      checkColor:  Colors.white,
                                       value: CNPJValid,
                                       onChanged: (bool value) {
                                       setState(() {
@@ -199,9 +213,11 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                       });
                                       },
                                       ),
+                                       ),
                                     new Text(
                                       'CNPJ',
                                       style: new TextStyle(
+                                        color: Colors.black45,
                                         fontWeight:FontWeight.w400,
                                         fontSize: 12,
                                       ),

@@ -208,6 +208,7 @@ class _Tela_LoginState extends State<Tela_Login> {
                                      Text(
                                          "Não possui uma conta?",
                                          style:TextStyle(
+                                           color: const Color(0xFF242323),
                                            fontFamily:"Brand-Regular",
                                            fontWeight: FontWeight.w100,
                                          )

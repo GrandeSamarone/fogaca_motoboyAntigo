@@ -49,7 +49,7 @@ class _CPTextFieldState extends State<CPTextFormField> {
             labelText: widget.labeltext,
             labelStyle:TextStyle(
               fontFamily: "Brand-Regular",
-              color: const Color(0xFFB6B2B2),
+              color: const Color(0xFF242323),
               fontWeight:FontWeight.w400,
               fontSize: 12,
             ),
@@ -77,7 +77,9 @@ class _CPTextFieldState extends State<CPTextFormField> {
               fontSize: 10.0,
             )
         ),
-        style: TextStyle(fontSize: 14.0,
+        style: TextStyle(
+          color: const Color(0xFF242323),
+          fontSize: 14.0,
           fontFamily: "Brand-Regular",),
 
       );

@@ -13,7 +13,7 @@
         android:elevation="4dp"
         cardview:cardCornerRadius="4dp"
         android:clickable="true"
-        app:cardBackgroundColor="#fff"
+        app:cardBackgroundColor="#0B0A0A"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -32,7 +32,7 @@
                 android:textSize="20dp"
                 android:textStyle="bold"
                 android:id="@+id/nome_loja"
-                android:textColor="#000"
+                android:textColor="#FDFAFA"
                 android:text="Fogaça 123"
                 android:fontFamily="@font/boltsemibold"
                 android:layout_width="wrap_content"
@@ -52,7 +52,7 @@
                     android:textSize="18dp"
                     android:id="@+id/endereco_loja"
                     android:fontFamily="@font/boltregular"
-                    android:textColor="#000"
+                    android:textColor="#FDFAFA"
                     android:text="Teste Card"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
@@ -71,7 +71,7 @@
                     android:textSize="18dp"
                     android:fontFamily="@font/boltregular"
                     android:id="@+id/quantitens_loja"
-                    android:textColor="#000"
+                    android:textColor="#FDFAFA"
                     android:text="4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>

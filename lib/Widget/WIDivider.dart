@@ -7,7 +7,7 @@ class WIDividerWidget extends StatelessWidget{
 
     return Divider(
       height:1.0,
-      color:Theme.of(context).textTheme.bodyText2.color,
+      color: Colors.white54,
       thickness:1.0,
     );
   }

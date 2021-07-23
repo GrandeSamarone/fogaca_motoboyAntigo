@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launchericon"
         android:label="Fogaça Motoboy">
         <activity
             android:name=".MainAlert"

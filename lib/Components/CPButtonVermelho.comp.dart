@@ -28,8 +28,8 @@ class CPButton extends StatelessWidget{
         borderRadius: BorderRadius.circular(20),
           gradient: LinearGradient(
               colors: [
-                 Color(0xFFF9C184),
-                 Color(0xFFEA9971),
+                Color(0xFFC98740),
+                Color(0xFFBB6C3F),
                  Color(0xFFC83535)
               ],
           ),

@@ -176,15 +176,18 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
 
-                                  Text("Selecione a cidade que irá trabalhar:",textAlign: TextAlign.left,
+                                  Text("Selecione a cidade que irá trabalhar:",
+                                    textAlign: TextAlign.left,
                                   style: TextStyle(
-                                  fontSize: 15, fontWeight:FontWeight.w400),
+                                  fontSize: 15,
+                                      fontWeight:FontWeight.w400,
+                                  color: Colors.black45),
                                   ),
                                   Container(
                                   width: MediaQuery.of(context).size.width,
                                   alignment: AlignmentDirectional.center,
                                   decoration: BoxDecoration(
-                                  color: Color(0xFFF6F4F4),
+                                  color:  Colors.black45,
                                   borderRadius:
                                   BorderRadius.only(
                                   topLeft: Radius.circular(12.0),
@@ -199,10 +202,10 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
                                   iconSize: 24,
                                   elevation: 16,
                                   style: TextStyle(
-                                  color: Theme.of(context).textTheme.headline4.color,
                                   fontSize: 14,
                                   fontFamily: "Brand-Regular"),
                                   underline: Container(
+                                    color: Colors.white,
                                   height: 0,
                                   ),
                                   onChanged: (String data) {

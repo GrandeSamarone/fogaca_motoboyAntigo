@@ -65,6 +65,7 @@ class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor:Color(0xFFFDFDFD),
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.red[900]),
@@ -84,7 +85,7 @@ class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
               bottom: 40,
             ),
             child: Card(
-
+              color:  Color(0xFFFDFDFD),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -102,6 +103,7 @@ class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
                       "insira o endereço de e-mail associado à sua conta, siga o link "
                       "no e-mail enviado a você para escolher uma nova senha.",
                       style: TextStyle(
+                        color: Colors.black45,
                         fontWeight: FontWeight.w700,
                         fontSize: 16.0,
                         fontFamily: "Brand-Regular",
@@ -173,6 +175,7 @@ class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
                     Text(
                       "voçê receberá um e-mail com link ,verifique sua caixa de mensagem.",
                       style: TextStyle(
+                        color: Colors.black45,
                         fontWeight:FontWeight.w700 ,
                         fontSize: 18.0,
                         fontFamily: "Brand Bold",

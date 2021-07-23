@@ -416,11 +416,7 @@ Future<void>Ficar_Offline()async{
   bool get wantKeepAlive => true;
 
   changeMapMode() {
-    if (themeChanger.isDark()) {
-      getJsonFile("imagens/maps_styles/mapsdark.json").then(setMapStyle);
-    } else {
-      getJsonFile("imagens/maps_styles/mapslight.json").then(setMapStyle);
-    }
+    getJsonFile("imagens/maps_styles/mapsdark.json").then(setMapStyle);
   }
 
   Future<String> getJsonFile(String path) async {
