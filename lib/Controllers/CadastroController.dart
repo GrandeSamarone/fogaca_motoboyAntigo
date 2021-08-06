@@ -1,97 +1,95 @@
-
- import 'dart:convert';
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cpfcnpj/cpfcnpj.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:fogaca_app/Assistencia/SocialSignInModel.dart';
 import 'package:fogaca_app/Model/Motoboy.dart';
+import 'package:fogaca_app/Page/SplashScreen.dart';
+import 'package:fogaca_app/Pages_user/Tela_Cad_Moto.dart';
+import 'package:fogaca_app/Widget/WiAlerts.dart';
+//import 'package:firebase_messaging/firebase_messaging.dart';
 
-class CadastroController{
-  CollectionReference _db = FirebaseFirestore.instance.collection("user_motoboy");
-  String codcity;
-  String erro;
-  String token;
-   Future<String> RegistrarNovoUsuario(Motoboy motoboy) async {
+abstract class CadastroController extends State<Tela_Cad_Moto> with SocialSignInModel{
+  var busy=false;
+  var senha;
+  var email;
+  var repetirsenha;
+  var codcity;
+  final formKey = GlobalKey<FormState>();
+  bool visible_SENHA = true;
+  late Size size;
 
-      User firebaseUser;
-     final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  String dropDownText = 'Selecione uma cidade';
+  List <String> ItensList = [
+    'Selecione uma cidade',
+    'Ji-Paraná',
+    'Ouro Preto',
+    'Jaru',
+    'Ariquemes',
+    'Cacoal',
+    'Médici',
+  ];
 
-       try {
-         final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
-          token = await firebaseMessaging.getToken();
+  VerificarDados(){
 
-         firebaseUser = (await _firebaseAuth
-             .createUserWithEmailAndPassword(
-             email: motoboy.email,
-             password: motoboy.senha).catchError((errMsg) {
-           erro = errMsg.toString();
-         }
-         )).user;
-       }catch (e) {
-       }
-
-       print("UID:::!${firebaseUser.uid}");
-       if(firebaseUser.uid!=null){
-         print("PASSOU!${firebaseUser.toString()}");
-
-         final consult =await _db
-             .where("email",isEqualTo:firebaseUser.email)
-             .get()
-             .then((value) => value.size);
-
-         print("Size:: $consult");
-         if(consult<=0){
-
-           // print("ID DO ANIMAL::${firebaseUser.uid}");
+    setState(() {
+      busy=true;
+    });
 
 
-           if(motoboy.cidade=="Ji-Paraná"){
-             codcity="jipa";
-           }else if(motoboy.cidade=="Ouro Preto"){
-             codcity="ouropreto";
-           }else if(motoboy.cidade=="Jaru"){
-             codcity="jaru";
-           }else if(motoboy.cidade=="Ariquemes"){
-             codcity="ariquemes";
-           }else if(motoboy.cidade=="Cacoal"){
-             codcity="cacoal";
-           }else if(motoboy.cidade=="Médici"){
-             codcity="medici";
-           }
-           Map<String,dynamic> dados=Map();
-           dados["id"]=firebaseUser.uid;
-           dados["nome"]=motoboy.nome;
-           dados["icon_foto"]="https://firebasestorage.googleapis.com/v0/b/fogaca-app.appspot.com/o/perfil%2Fcapacete.jpg?alt=media&token=55172947-3db3-4edd-9daa-93ceee0abd91";
-           dados["tipo_dados"]=motoboy.tipo_dados;
-           dados["cpf_cnpj"]=motoboy.cpf_cnpj;
-           dados["tipo_user"]="motoboy";
-           dados["telefone"]=motoboy.telefone;
-           dados["email"]=motoboy.email;
-           dados["token"]=token;
-           dados["estrela"]="5.0";
-           dados["cidade"]=motoboy.cidade;
-           dados["cod"]=codcity;
-           dados["estado"]="Rondônia";
-           dados["online"]=false;
-           dados["permissao"]=false;
-           dados["modelo"]=motoboy.modelo;
-           dados["placa"]=motoboy.placa;
-           dados["cor"]=motoboy.cor;
+    Motoboy lojista = new Motoboy();
+    lojista.nome= widget.dadosMap["nome"];
+    lojista.email= email;
+    lojista.cidade=dropDownText;
+    lojista.estado= "Rondônia";
+    lojista.tipo_dados=widget.dadosMap["tipo_dados"];
+    lojista.cpf_cnpj= widget.dadosMap["cpf_cnpj"];
+    lojista.tipo_user="newUser";
+    lojista.permissao =false;
+    lojista.telefone= widget.dadosMap["telefone"];
+    lojista.icon_foto="https://firebasestorage.googleapis.com/v0/b/fogaca-app.appspot.com/o/perfil%2Ficonusernfoto.jpg?alt=media&token=370e2f4a-a059-453e-a2f3-a4d8e5d7d7ef";
+
+    RegistrarNovoUsuario(lojista,senha).then((data) {
+      switch(data.toString()){
+        case "sucesso":
+          onSucess();
+          return;
+        case "[firebase_auth/wrong-password] The password is invalid or the user does not have a password.":
+          WiAlerts.of(context).snack("Senha incorreta.");
+          return;
+
+        case "[firebase_auth/user-not-found] There is no user record corresponding to this identifier. The user may have been deleted.":
+          WiAlerts.of(context).snack("Conta não cadastrada.");
+          return;
+        case "esta conta não existe.":
+          WiAlerts.of(context).snack("Conta não existe.");
+          return;
+      }
+
+    }).catchError((err){
+      if(err.toString()=="type 'Null' is not a subtype of type 'FutureOr<UserCredential>'"){
+        WiAlerts.of(context).snack("E-mail já cadastrado em outra conta.");
+      }else
+      if(err.toString()=="type 'String' is not a subtype of type 'FutureOr<UserCredential>'"){
+        WiAlerts.of(context).snack("E-mail já cadastrado em outra conta.");
+      }
+
+      print("Dados Retornados::"+err.toString());
+    }).whenComplete(() {
+      onComplete();
+    });
+  }
+  onSucess(){
+    Navigator.pushNamedAndRemoveUntil(
+        context, SplashScreen.idScreen, (route) => false);
+  }
+  onComplete(){
+
+    setState(() {
+      busy=false;
+    });
+  }
 
 
-           _db.doc(firebaseUser.uid).set(dados);
-
-           return "sucesso";
-
-         }else{
-           return "esta conta já existe.";
-         }
-     }else{
-         return "erro::::::${erro}";
-       }
-
-
-   }
- }
+}

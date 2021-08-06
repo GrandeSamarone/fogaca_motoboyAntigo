@@ -1,26 +1,13 @@
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cpfcnpj/cpfcnpj.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fogaca_app/Components/CPButtonVermelho.comp.dart';
 import 'package:fogaca_app/Components/CPTextFormField.dart';
 import 'package:fogaca_app/Controllers/CadastroController.dart';
-import 'package:fogaca_app/Model/Motoboy.dart';
-import 'package:fogaca_app/Page/SplashScreen.dart';
-import 'package:fogaca_app/Widget/WIBusy.dart';
 import 'package:fogaca_app/Widget/WIDivider.dart';
-import 'Tela_Login.dart';
+import 'package:fogaca_app/Widget/WIToast.dart';
 import 'Tela_Cad_Moto.dart';
 import 'package:fogaca_app/Providers/Firestore_Dados.dart';
-import 'package:fogaca_app/Widget/Divider.dart';
-import 'package:fogaca_app/Widget/Toast.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
-
-import 'package:url_launcher/url_launcher.dart';
 
 
 class Tela_Cadastro extends StatefulWidget {
@@ -34,15 +21,14 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
   bool _visible_SENHA = true;
   bool _isValid = true;
   final _formKey = GlobalKey<FormState>();
-  final controllerCadastro = new CadastroController();
-  Dados_usuario Cadastrar_usuario;
-  String  _nome;
-  String _email;
-  String _tel;
-  String _cpf_cnpj;
-  String _senha;
-  String _repetirsenha;
-  String _escolhaUsuario=null;
+  var controllerCadastro ;
+  Dados_usuario?Cadastrar_usuario;
+  String ? _nome;
+  String ?_email;
+  String ?_tel;
+  String ?_cpf_cnpj;
+  String ?_senha;
+  String ?_repetirsenha;
   TextEditingController cpf_Controller = TextEditingController();
   TextEditingController cnpj_Controller = TextEditingController();
   bool CPFValid = false;
@@ -125,12 +111,12 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                   labeltext:"Nome do Usuário",
 
                                   validator: (value) {
-                                    if (value.isEmpty) {
+                                    if (value!.isEmpty) {
                                       return '*Digite um nome.';
                                     }else if(value.length<4){
                                       return '*mínimo 4 caracteres.';
                                     }
-                                    return null;
+                                    return "null";
                                   },
                                   onSaved: (input) => _nome = input,
                                 ),
@@ -145,10 +131,10 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                   labeltext:"Telefone (99)9999-9999",
 
                                   validator: (value) {
-                                    if (value.isEmpty) {
+                                    if (value!.isEmpty) {
                                       return '*número de telefone é obrigatório.';
                                     }
-                                    return null;
+                                    return "null";
                                   },
                                   onSaved: (input) => _tel = input,
                                 ),
@@ -179,9 +165,9 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                       activeColor: Colors.red[900],
                                       checkColor:  Colors.white,
                                       value: CPFValid,
-                                      onChanged: (bool value) {
+                                      onChanged: (bool ?value) {
                                         setState(() {
-                                          CPFValid = value;
+                                          CPFValid = value!;
                                          CNPJValid = false;
                                          cnpj_Controller.clear();
                                          // valWednesday = false;
@@ -204,9 +190,9 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                       activeColor: Colors.red[900],
                                       checkColor:  Colors.white,
                                       value: CNPJValid,
-                                      onChanged: (bool value) {
+                                      onChanged: (bool ?value) {
                                       setState(() {
-                                        CNPJValid = value;
+                                        CNPJValid = value!;
                                       CPFValid = false;
                                       cpf_Controller.clear();
                                       // valWednesday = false;
@@ -236,13 +222,13 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                   labeltext:"Cpf",
                                   Controller: cpf_Controller,
                                   validator: (value) {
-                                    if (value.isNotEmpty) {
-                                      if(CPF.isValid(value)==false){
-                                        return '*Cpf inválido.';
-                                      }
+                                    if (value!.isNotEmpty) {
+                                      // if(CPF.isValid(value)==false){
+                                      //   return '*Cpf inválido.';
+                                      // }
 
                                     }
-                                    return null;
+                                    return "null";
                                   },
                                   //   onSaved: (input) => _cpf_cnpj = input,
                                 ): new Container(),
@@ -258,13 +244,13 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                   Controller: cnpj_Controller,
 
                                   validator: (value) {
-                                    if (value.isNotEmpty) {
-                                      if(CNPJ.isValid(value)==false){
-                                        return '*Cnpj inválido.';
-                                      }
+                                    if (value!.isNotEmpty) {
+                                      // if(CNPJ.isValid(value)==false){
+                                      //   return '*Cnpj inválido.';
+                                      // }
 
                                     }
-                                    return null;
+                                    return "null";
                                   },
                                   //  onSaved: (input) => _cpf_cnpj = input,
                                 ): new Container(),
@@ -277,12 +263,12 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                   obscureText: false,
                                   labeltext:"E-mail",
                                   validator: (value) {
-                                    if (value.isEmpty) {
+                                    if (value!.isEmpty) {
                                       return '*Digite um e-mail.';
                                     }else if(!value.contains("@")){
                                       return '*Digite um e-mail válido.';
                                     }
-                                    return null;
+                                    return "null";
                                   },
                                   onSaved: (input) => _email = input,
 
@@ -297,12 +283,12 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                   labeltext:"Senha",
 
                                   validator: (value) {
-                                    if (value.isEmpty) {
+                                    if (value!.isEmpty) {
                                       return "*Digite uma senha." ;
                                     }else if(value.length<=5){
                                       return '*Senha no mínimo 6 digitos';
                                     }
-                                    return null;
+                                    return "null";
                                   },
                                   onSaved: (input) => _senha = input,
                                 ):Container(),
@@ -318,10 +304,10 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                     setState(() {
 
                                     });
-                                    if (value.isEmpty) {
+                                    if (value!.isEmpty) {
                                       return "*Por favor repetir a mesma senha." ;
                                     }
-                                    return null;
+                                    return "null";
                                   },
                                   onSaved: (input) => _repetirsenha = input,
                                 ) :Container(),
@@ -354,8 +340,8 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
                                           ),
 
                                           onPressed:(){
-                                      if (_formKey.currentState.validate()) {
-                                      _formKey.currentState.save();
+                                      if (_formKey.currentState!.validate()) {
+                                      _formKey.currentState!.save();
                                       if(_senha!=_repetirsenha) {
                                       ToastMensagem("Senhas estão diferentes.", context);
                                       }else{
@@ -381,8 +367,8 @@ class _Tela_CadastroState extends State<Tela_Cadastro> {
   }
 
   void RegistrarNovoUsuario(){
-    String cpf_formatado=CPF.format(cpf_Controller.text);
-    String cnpj_formatado=CPF.format(cnpj_Controller.text);
+    String cpf_formatado="CPF.format(cpf_Controller.text)";
+    String cnpj_formatado="CPF.format(cnpj_Controller.text)";
     String tipoDado;
     String dados_formatado;
 

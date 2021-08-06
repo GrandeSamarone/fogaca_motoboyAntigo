@@ -1,29 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:paginate_firestore/paginate_firestore.dart';
 
 import 'WIHistoricoCarregando.dart';
 import 'WIPedidoItem.dart';
 
 class WICustomFutureBuilder<T> extends StatelessWidget {
 
-  String colletion;
- String estado;
- String msgvazio;
- String id_usuario;
+  var colletion;
+  var estado;
+  var msgvazio;
   WICustomFutureBuilder({
     this.colletion,
    this.estado,
-   this.msgvazio,
-    this.id_usuario
+   this.msgvazio
 });
 
 
   @override
   Widget build(BuildContext context) {
 
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? usuarioLogado = auth.currentUser;
     Query users = FirebaseFirestore.instance.collection(colletion)
-        .where('boy_id',isEqualTo:id_usuario)
+        .where('id_usuario',isEqualTo:usuarioLogado!.uid)
         .where("estado",isEqualTo:estado);
 
     return StreamBuilder <QuerySnapshot>(
@@ -40,19 +41,17 @@ class WICustomFutureBuilder<T> extends StatelessWidget {
         print("snapshot:::${snapshot.connectionState}");
 
         if (snapshot.connectionState == ConnectionState.active) {
-
           print("snapshot:::${snapshot.requireData.size}");
           if (snapshot.requireData.size>0) {
-            return  ListView(
-                children: <Widget>[
-                  Column(
-                    children: snapshot.data.docs.map((DocumentSnapshot document) {
-
-                      return WIPedidoItem(pedido: document.data());
-                    }).toList(),
-                  )
-                ]
-            );
+            return PaginateFirestore(
+                itemBuilderType: PaginateBuilderType.listView,
+                itemBuilder: (index, context, documentSnapshot)
+                {
+                  return WIPedidoItem(pedido: snapshot.data!.docs[index].data()as Map<String,dynamic>);
+                },
+                query: users,
+                isLive: true
+            ) ;
           } else {
                return Container(
                  width: double.infinity,
@@ -64,7 +63,11 @@ class WICustomFutureBuilder<T> extends StatelessWidget {
                        width: 50,
                        height: 50,),
                        Text(msgvazio,
-                         style: TextStyle(fontSize:15,fontWeight: FontWeight.w400),)
+                         style: TextStyle(fontSize:15,
+                             fontWeight: FontWeight.w400,
+                          color: Colors.white
+                         ),
+                       )
                    ],
                    ),
                );

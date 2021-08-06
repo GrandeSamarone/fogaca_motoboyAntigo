@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -10,26 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:fogaca_app/Model/Motoboy.dart';
-import 'package:fogaca_app/Model/Pedido.dart';
-import 'package:fogaca_app/Notificacao/NotificacaoDialog.dart';
-import 'package:fogaca_app/Notificacao/PushNotificacao.dart';
-import 'package:fogaca_app/Page/Mapa_Home.dart';
-import 'package:fogaca_app/Store/StoreDadosUsuario.dart';
 import 'package:fogaca_app/Widget/WIDialog.dart';
-import 'package:fogaca_app/Widget/WIListPorData.dart';
-import 'package:mobx/mobx.dart';
+import 'package:fogaca_app/Widget/WIToast.dart';
 import '../Pages_pedido/Pedidos_em_Entrega.dart';
-import 'package:fogaca_app/Page/SplashScreen.dart';
-import '../Pages_pedido/Tela_Passeio.dart';
 import 'package:fogaca_app/Providers/Firestore_Dados.dart';
-import 'package:fogaca_app/Providers/Prov_Thema_black_light.dart';
-import 'package:fogaca_app/Widget/Toast.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:fogaca_app/main.dart';
-import 'package:ndialog/ndialog.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart' as perm;
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wakelock/wakelock.dart';
@@ -41,36 +26,34 @@ class HomeTabePage extends StatefulWidget{
 
 class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClientMixin {
 
-  GoogleMapController controller_Maps;
-  StreamSubscription<Position>homepageStreamSubscription;
+  GoogleMapController? controller_Maps;
   final FirebaseMessaging firebaseMessaging=FirebaseMessaging.instance;
   var geolocator = Geolocator();
-  Dados_usuario DadosMotoboy;
+  Dados_usuario?DadosMotoboy;
   Motoboy motoboyLogado=Motoboy();
-  Position posicao_atual;
-  Dados_usuario Dados_Usuario;
+  Position ?posicao_atual;
+  Dados_usuario ?Dados_Usuario;
   String textButton="FICAR ONLINE";
-  Color ColorButton=Colors.greenAccent[700];
+  Color ?ColorButton=Colors.greenAccent[700];
   bool _OffouOnline=false;
-  bool _checkar;
-  bool _localizacaoAtiva;
-  String _CodCity;
-  String _IDUsuario;
-  ThemeChanger themeChanger;
-  StoreDadosUsuario controllerDadosUsuario;
+  bool ?_checkar;
+  bool ?_localizacaoAtiva;
+  String ?_CodCity;
+  String ?_IDUsuario;
+ // StoreDadosUsuario ?controllerDadosUsuario;
 
 
   void locatePosition() async {
-    posicao_atual = await geolocator.getCurrentPosition(
+    posicao_atual = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
 
-    LatLng latLatPosition = LatLng(posicao_atual.latitude, posicao_atual.longitude);
+    LatLng latLatPosition = LatLng(posicao_atual!.latitude, posicao_atual!.longitude);
     //localizacao fim
     CameraPosition cameraPosition =
     new CameraPosition(target: latLatPosition, zoom: 14);
     controller_Maps
-        .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+        !.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
 
 
@@ -78,37 +61,10 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
 
   @override
   Widget build(BuildContext context) {
-    themeChanger = Provider.of<ThemeChanger>(context, listen: false);
     VerificarLocalizacao();
     DadosMotoboy=Provider.of<Dados_usuario>(context);
-   // controllerDadosUsuario=Provider.of<StoreDadosUsuario>(context);
-   // controllerDadosUsuario.DadosMotoboy();
    final motoboy=Provider.of<List<Motoboy>>(context);
-   // final store=Provider.of<StoreDadosUsuario>(context);
-    /*  if(store!=null){
-    //  motoboyLogado=motoboy[0];
-      _OffouOnline=store.online_offline;
-      _checkar=store.permissao;
-      _IDUsuario=store.id;
-      _CodCity=store.codcity;
-      print("dados::"+_CodCity+""+_IDUsuario+""+_OffouOnline.toString()+""+_checkar.toString());
 
-      if(_OffouOnline){
-        setState(() {
-          ColorButton=Colors.redAccent[700];
-          textButton="FICAR OFFLINE";
-
-        });
-
-      }else{
-        setState(() {
-          ColorButton=Colors.greenAccent[700];
-          textButton="FICAR ONLINE";
-        });
-
-      }
-
-    }*/
     if(motoboy!=null){
       motoboyLogado=motoboy[0];
       _OffouOnline=motoboyLogado.online;
@@ -249,7 +205,7 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
   }
   void VerificarLocalizacao()async{
 
-    ServiceStatus serviceStatus = await Permission.location.serviceStatus;
+    perm.ServiceStatus serviceStatus = await perm.Permission.location.serviceStatus;
     setState(() {
       _localizacaoAtiva = (serviceStatus == ServiceStatus.enabled);
     });
@@ -259,9 +215,6 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
 
       Atualizar_Online_Offline(false);
       ToastMensagem("Ative seu GPS Para continuar aceitando Pedidos...", context);
-      DeletarLocMotoboyDatabase();
-
-
 
     }
   }
@@ -269,13 +222,13 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
 
    // firebaseMessaging.subscribeToTopic(_CodCity);
     DatabaseReference MotoboyRequest=FirebaseDatabase.instance.reference().child("MotoboysOnline")
-        .child(_IDUsuario);
-    posicao_atual = await geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        .child("_IDUsuario");
+    posicao_atual = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
     if(_OffouOnline) {
       Geofire.initialize("MotoboysOnline");
       Geofire.setLocation(
-          _IDUsuario, posicao_atual.latitude, posicao_atual.longitude);
+          "_IDUsuario", posicao_atual!.latitude, posicao_atual!.longitude);
 
 
       MotoboyRequest.onValue.listen((event) {
@@ -284,34 +237,35 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
     }
   }
 
-  void getLocationLiveUpdates(){
+  Future<void> getLocationLiveUpdates()async{
 
-    homepageStreamSubscription=geolocator.getPositionStream().listen((Position position) {
+      Geolocator.getPositionStream().listen((Position position) {
 
       posicao_atual=position;
       if(_OffouOnline){
-        Geofire.setLocation(_IDUsuario, position.latitude, position.longitude);
+         Geofire.setLocation("_IDUsuario", position.latitude, position.longitude);
       }
       LatLng latLng=LatLng(position.latitude, position.longitude);
 
       CameraPosition cameraPosition =
       new CameraPosition(target: latLng, zoom: 14);
       controller_Maps
-          .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+          !.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
 
     });
   }
 
-  Future<void> DeletarLocMotoboyDatabase() {
-    //firebaseMessaging.unsubscribeFromTopic(_CodCity);
+  Future<void> DeletarLocMotoboyDatabase()async {
+    firebaseMessaging.unsubscribeFromTopic("_CodCity");
     //MotoboysOnline
-    DatabaseReference MotoboyRequest=FirebaseDatabase.instance.reference().child("MotoboysOnline")
-        .child(_IDUsuario);
-    Geofire.removeLocation(_IDUsuario);
-    Geofire.stopListener();
-    MotoboyRequest.onDisconnect();
+    DatabaseReference MotoboyRequest=FirebaseDatabase.instance.reference()
+        .child("MotoboysOnline")
+        .child("_IDUsuario");
+   await Geofire.removeLocation("_IDUsuario");
+    await Geofire.stopListener();
     MotoboyRequest.remove();
-    MotoboyRequest=null;
+    MotoboyRequest.onDisconnect();
+    //MotoboyRequest="null";
 
   }
 
@@ -319,13 +273,13 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
     Map<String, dynamic> atualizadDados = new Map();
     atualizadDados["online"]=resultado;
 
-    DadosMotoboy.Atualizar_Online_Offline(atualizadDados);
+    DadosMotoboy!.Atualizar_Online_Offline(atualizadDados);
 
   }
 
   void VerificandoDados()async {
-    if(_checkar){
-    if(_localizacaoAtiva){
+    if(_checkar!){
+    if(_localizacaoAtiva!){
       if(_OffouOnline){
        Ficar_Offline();
       }else{
@@ -337,22 +291,22 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
       ToastMensagem("Ative seu GPS antes de começar a aceitar pedidos.", context);
     }
   }else{
-      showDialog(
-          context:context,
-          builder: (BuildContext context)=>WIDialog(
-              titulo: "Atenção",
-              msg: "Para ter sua conta liberada  por favor entrar em contato conosco pelo whatsapp.",
-              txtButton:"Falar agora",
-              funcao:(){
-                _launchWhatsapp();
-                Navigator.pop(context);
-              }) );
+      // showDialog(
+      //     context:context,
+      //     builder: (BuildContext context)=>WIDialog(
+      //         titulo: "Atenção",
+      //         msg: "Para ter sua conta liberada  por favor entrar em contato conosco pelo whatsapp.",
+      //         txtButton:"Falar agora",
+      //         funcao:(){
+      //           _launchWhatsapp();
+      //           Navigator.pop(context);
+      //         }) );
 
     }
   }
 
 Future<void>Ficar_Online()async{
-  ServiceStatus serviceStatus = await Permission.location.serviceStatus;
+  perm.ServiceStatus serviceStatus = await perm.Permission.location.serviceStatus;
   _localizacaoAtiva = (serviceStatus == ServiceStatus.enabled);
 
     MethodChannel serviceChannel = MethodChannel("motoboy");
@@ -360,27 +314,27 @@ Future<void>Ficar_Online()async{
       print("RETORNO CHECKOVERLAY::${value}");
     if(value==true){
       print("RETORNO CHECKOVERLAY2::${value}");
-        firebaseMessaging.subscribeToTopic(_CodCity);
+        firebaseMessaging.subscribeToTopic("_CodCity");
         Wakelock.enable();
         _OffouOnline=true;
         Atualizar_Online_Offline(true);
         ToastMensagem("Buscando...", context);
-        // makeDriveOnlineNow();
-        // getLocationLiveUpdates();
+         makeDriveOnlineNow();
+         getLocationLiveUpdates();
         MethodChannel serviceChannel = MethodChannel("motoboy");
         serviceChannel.invokeMethod("startService");
   }else{
-      showDialog(
-          context:context,
-          builder: (BuildContext context)=>WIDialog(
-              titulo: "Atenção",
-              msg: "Para receber corridas é preciso autorização para sobrepor outros aplicativos.",
-               txtButton:"Ok,entendi.",
-               funcao:(){
-                 MethodChannel serviceChannel = MethodChannel("motoboy");
-                 serviceChannel.invokeMethod("ativarOverlay");
-                 Navigator.pop(context);
-               }) );
+      // showDialog(
+      //     context:context,
+      //     builder: (BuildContext context)=>WIDialog(
+      //         titulo: "Atenção",
+      //         msg: "Para receber corridas é preciso autorização para sobrepor outros aplicativos.",
+      //          txtButton:"Ok,entendi.",
+      //          funcao:(){
+      //            MethodChannel serviceChannel = MethodChannel("motoboy");
+      //            serviceChannel.invokeMethod("ativarOverlay");
+      //            Navigator.pop(context);
+      //          }) );
     }
 
   });
@@ -392,13 +346,13 @@ Future<void>Ficar_Online()async{
 
   }
 Future<void>Ficar_Offline()async{
-    firebaseMessaging.unsubscribeFromTopic(_CodCity);
+    firebaseMessaging.unsubscribeFromTopic("_CodCity");
     ToastMensagem("Não receberá pedidos.", context);
     Wakelock.disable();
     _OffouOnline=false;
     Atualizar_Online_Offline(false);
-    // Geofire.stopListener();
-    //  DeletarLocMotoboyDatabase();
+    await Geofire.stopListener();
+      DeletarLocMotoboyDatabase();
     MethodChannel serviceChannel = MethodChannel("motoboy");
     serviceChannel.invokeMethod("stopService");
 }
@@ -424,7 +378,7 @@ Future<void>Ficar_Offline()async{
   }
 
   void setMapStyle(String mapStyle) {
-    controller_Maps.setMapStyle(mapStyle);
+    controller_Maps!.setMapStyle(mapStyle);
   }
 
 }

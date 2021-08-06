@@ -6,10 +6,9 @@ import 'package:fogaca_app/Components/CPTextFormField.dart';
 import 'package:fogaca_app/Controllers/CadastroController.dart';
 import 'package:fogaca_app/Model/Motoboy.dart';
 import 'package:fogaca_app/Providers/Firestore_Dados.dart';
-import 'package:fogaca_app/Widget/Toast.dart';
 import 'package:fogaca_app/Widget/WIBusy.dart';
+import 'package:fogaca_app/Widget/WIToast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -20,24 +19,24 @@ class Tela_Cad_Moto extends StatefulWidget{
   static const String idScreen = "motoinfo";
   Map dadosMap;
 
- Tela_Cad_Moto(this.dadosMap, {Key key}) : super(key: key);
+ Tela_Cad_Moto(this.dadosMap, {Key ?key}) : super(key: key);
 
   @override
   _Tela_Cad_MotoState createState() => _Tela_Cad_MotoState();
 }
 
 class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
-  String _modelo;
+  String ?_modelo;
 
-  String _cor;
+  String ?_cor;
 
-  String _placa;
+  String ?_placa;
 
   var busy=false;
 
   final _formKey = GlobalKey<FormState>();
 
-  final controllerCadastro = new CadastroController();
+  var controllerCadastro ;
 
   String dropDownText = 'Selecione uma cidade';
   List <String> ItensList = [
@@ -50,7 +49,7 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
     'Médici',
   ];
 
-  String codcity;
+  String? codcity;
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -125,12 +124,12 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
                                   labeltext:"Modelo",
 
                                   validator: (value) {
-                                  if (value.isEmpty) {
+                                  if (value!.isEmpty) {
                                   return '*Digite um modelo de moto.';
                                   }else if(value.length<4){
                                   return '*mínimo 4 caracteres.';
                                   }
-                                  return null;
+                                  return "null";
                                   },
                                   onSaved: (input) => _modelo = input,
                                   ),
@@ -143,12 +142,12 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
                                   labeltext:"Placa",
 
                                   validator: (value) {
-                                  if (value.isEmpty) {
+                                  if (value!.isEmpty) {
                                   return '*Digite a placa.';
                                   }else if(value.length<7){
                                   return '*incorreto.';
                                   }
-                                  return null;
+                                  return "null";
                                   },
                                   onSaved: (input) => _placa = input,
                                   ),
@@ -161,12 +160,12 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
                                   labeltext:"Cor",
 
                                   validator: (value) {
-                                  if (value.isEmpty) {
+                                  if (value!.isEmpty) {
                                   return '*cor é necessária.';
                                   }else if(value.length<1){
                                   return '*incorreto.';
                                   }
-                                  return null;
+                                  return "null";
                                   },
                                   onSaved: (input) => _cor = input,
                                   ),
@@ -208,9 +207,9 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
                                     color: Colors.white,
                                   height: 0,
                                   ),
-                                  onChanged: (String data) {
+                                  onChanged: (String? data) {
                                   setState(() {
-                                  dropDownText = data;
+                                  dropDownText = data!;
                                   });
                                   },
                                   items: ItensList.map<DropdownMenuItem<String>>((String value) {
@@ -274,8 +273,8 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
 
                                       onPressed:(){
                                         if(dropDownText!="Selecione uma cidade"){
-                                          if (_formKey.currentState.validate()) {
-                                            _formKey.currentState.save();
+                                          if (_formKey.currentState!.validate()) {
+                                            _formKey.currentState!.save();
                                             SalvarDriveMotoInfo(context);
 
                                           }
@@ -328,11 +327,11 @@ class _Tela_Cad_MotoState extends State<Tela_Cad_Moto> {
     motoboy.cpf_cnpj = widget.dadosMap["cpf_cnpj"];
     motoboy.telefone = widget.dadosMap["telefone"];
     motoboy.cidade = dropDownText;
-    motoboy.cod = codcity;
+    motoboy.cod = "codcity";
     motoboy.estrela = "5.0";
-    motoboy.modelo = _modelo;
-    motoboy.placa = _placa;
-    motoboy.cor = _cor;
+    motoboy.modelo = "_modelo";
+    motoboy.placa = "_placa";
+    motoboy.cor = "_cor";
 
 
 

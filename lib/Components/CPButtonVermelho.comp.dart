@@ -6,14 +6,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CPButton extends StatelessWidget{
 
-  final String text;
-  final String  imagem;
-  final Function() callback;
-  final double width;
-  final double height;
+  final String ?text;
+  final String ? imagem;
+  final Function()? callback;
+  final double ?width;
+  final double ?height;
   CPButton({
-    @required this.text,
-    @required this.callback,
+    this.text,
+    this.callback,
     this.imagem,
     this.width,
     this.height,
@@ -35,7 +35,7 @@ class CPButton extends StatelessWidget{
           ),
       ),
       child: ElevatedButton(
-          child:Text(text),
+          child:Text(text!),
           style: ElevatedButton.styleFrom(
 
               primary: Colors.transparent,

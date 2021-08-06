@@ -7,7 +7,7 @@ class WIDividerWidget extends StatelessWidget{
 
     return Divider(
       height:1.0,
-      color: Colors.white54,
+      color:Color(0xFFB6B2B2),
       thickness:1.0,
     );
   }

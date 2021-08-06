@@ -2,22 +2,11 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_geofire/flutter_geofire.dart';
-import 'package:fogaca_app/Assistencia/AssistenciaMetodo.dart';
-import 'package:fogaca_app/Assistencia/MapKitAssistencia.dart';
-import 'package:fogaca_app/Model/Motoboy.dart';
-import 'package:fogaca_app/Model/Pedido.dart';
 import 'package:fogaca_app/Notificacao/PushNotificacao.dart';
-
-import 'package:fogaca_app/Providers/Prov_AppData.dart';
-import 'package:fogaca_app/Providers/Prov_Thema_black_light.dart';
-import 'package:fogaca_app/Widget/Toast.dart';
+import 'package:fogaca_app/Widget/WIToast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -25,7 +14,7 @@ import 'Pedidos_em_Entrega.dart';
 
 class Tela_Passeio extends StatefulWidget {
 
-  Map<String, dynamic> detalheCorrida = Map();
+  Map<String, dynamic> ?detalheCorrida = Map();
 
   Tela_Passeio({this.detalheCorrida});
 
@@ -37,30 +26,29 @@ class Tela_Passeio extends StatefulWidget {
 
 class _Tela_PasseioState extends State<Tela_Passeio>{
   PushNotificacao pushNotificacao= PushNotificacao();
-  StreamSubscription<DocumentSnapshot> streamSub;
+  StreamSubscription<DocumentSnapshot>? streamSub;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  GoogleMapController controller_Maps;
+  GoogleMapController ?controller_Maps;
   Set<Marker> marcadoresSet=Set<Marker>();
   Set<Circle> circleSet=Set<Circle>();
   Set<Polyline> PLinhasSet=Set<Polyline>();
   List<LatLng> PLinhasCordenadas=[];
   Map<PolylineId, Polyline> polylines = {};
-  Position posicao_atual;
+  Position ?posicao_atual;
   FirebaseFirestore db=FirebaseFirestore.instance;
-  Position posicaoCalcular;
+  Position ?posicaoCalcular;
   static CameraPosition _KGooglePlex=  CameraPosition(target:  LatLng(-10.877628756313518, -61.95153213548445), zoom: 14);
   bool _TextoBotao=false;
-  BitmapDescriptor MotoboyIcon;
-  String _id,_nome,_TempoCorrida,_distanciaKM;
-  int _quant_itens;
+  BitmapDescriptor ?MotoboyIcon;
+  var _id,_nome,_TempoCorrida,_distanciaKM;
+  var _quant_itens;
   var geolocator = Geolocator();
   var OpcaoLocacao=LocationOptions(accuracy: LocationAccuracy.bestForNavigation);
   double mapPaddingFromBottom=0;
-  StreamSubscription<Position>homepageStreamSubscription;
+  StreamSubscription<Position>?homepageStreamSubscription;
   double _TelaInicialContainerHeight=260.0;
   double _TelaCancelada=0.0;
-  double latitude,longitude;
-  ThemeChanger themeChanger;
+  var latitude,longitude;
   void SegundaTela(){
     //print("clicando no Mostrar Detalhes");
     // await getPlaceDirection();
@@ -81,20 +69,19 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
 
   @override
   Widget build(BuildContext context) {
-    themeChanger = Provider.of<ThemeChanger>(context, listen: false);
 
     pushNotificacao.initialize(context);
     verificarEstado();
-    if(widget.detalheCorrida["situacao"]=="Saiu para entrega"){
+    if(widget.detalheCorrida!["situacao"]=="Saiu para entrega"){
       setState(() {
         _TextoBotao=true;
       });}
-    latitude=double.parse(widget.detalheCorrida["lat_ponto"]);
-    longitude=double.parse(widget.detalheCorrida["long_ponto"]);
-    CriarIconMarker();
+    latitude=double.parse(widget.detalheCorrida!["lat_ponto"]);
+    longitude=double.parse(widget.detalheCorrida!["long_ponto"]);
+   // CriarIconMarker();
     return WillPopScope(
         onWillPop: () {
-          _moveToSignInScreen(context);
+         return  _moveToSignInScreen(context);
         },
         child:Scaffold(
             body:  Stack(
@@ -196,7 +183,7 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
                       boxShadow:
                       [
                         BoxShadow(
-                          color: Theme.of(context).textTheme.bodyText2.color,
+                         // color: Theme.of(context).textTheme.bodyText2.color,
                           blurRadius:16.0,
                           spreadRadius: 0.5,
                           offset:(Offset(0.7,0.7)),
@@ -218,12 +205,12 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
                           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
 
-                              Text(widget.detalheCorrida["nome_ponto"]!=null?widget.detalheCorrida["nome_ponto"]:"",style: TextStyle(fontSize:24.0,fontFamily:"Brand Bold"),),
+                              Text(widget.detalheCorrida!["nome_ponto"]!=null?widget.detalheCorrida!["nome_ponto"]:"",style: TextStyle(fontSize:24.0,fontFamily:"Brand Bold"),),
                               Padding(
                                 padding:EdgeInsets.only(right:10.0),
                                 child: GestureDetector(
                                   onTap:(){
-                                    launch(('tel://${widget.detalheCorrida["telefone"]!=null?widget.detalheCorrida["telefone"]:""}'));
+                                    launch(('tel://${widget.detalheCorrida!["telefone"]!=null?widget.detalheCorrida!["telefone"]:""}'));
                                   } ,
                                   child: Container(
                                     height: 30.0,
@@ -235,9 +222,12 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
                                       borderRadius: BorderRadius.circular(26.0),
                                       border:Border.all(
                                         width:2.0,
-                                        color: Theme
+                                        /*color: Theme
                                             .of(context)
-                                            .textTheme.bodyText2.color,),
+                                            .textTheme.bodyText2.color,
+                                         */
+                                            ),
+
                                     ),
                                     child: Icon(Icons.call,size:26,),
                                   ),
@@ -255,7 +245,7 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
                               Expanded(
                                   child:
                                   Container(
-                                    child: Text(widget.detalheCorrida["end_ponto"]!=null?widget.detalheCorrida["end_ponto"]:"",style: TextStyle(fontSize: 18.0),overflow: TextOverflow.ellipsis,),
+                                    child: Text(widget.detalheCorrida!["end_ponto"]!=null?widget.detalheCorrida!["end_ponto"]:"",style: TextStyle(fontSize: 18.0),overflow: TextOverflow.ellipsis,),
                                   ))
                             ],
                           ),
@@ -268,7 +258,7 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
                               Expanded(
                                   child:
                                   Container(
-                                    child: Text(widget.detalheCorrida["quant_itens"]!=null?widget.detalheCorrida["quant_itens"]+" itens":"",style: TextStyle(fontSize: 18.0),overflow: TextOverflow.ellipsis,),
+                                    child: Text(widget.detalheCorrida!["quant_itens"]!=null?widget.detalheCorrida!["quant_itens"]+" itens":"",style: TextStyle(fontSize: 18.0),overflow: TextOverflow.ellipsis,),
                                   ))
                             ],
                           ),
@@ -371,9 +361,9 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
                                       borderRadius: BorderRadius.circular(26.0),
                                       border:Border.all(
                                         width:2.0,
-                                        color: Theme
+                                       /* color: Theme
                                             .of(context)
-                                            .textTheme.bodyText2.color,),
+                                            .textTheme.bodyText2.color*/),
                                     ),
                                     child: Icon(Icons.call,size:26,),
                                   ),
@@ -452,7 +442,7 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
 
                                     onPressed: (){
                                       PLinhasCordenadas.clear();
-                                      homepageStreamSubscription.cancel();
+                                      homepageStreamSubscription!.cancel();
                                       Navigator.pushNamedAndRemoveUntil(context, Pedidos_em_Entrega.idScreen, (route) => false);
 
                                     })
@@ -549,7 +539,7 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
     }
   }
   void DialogCheguei(){
-    NAlertDialog(
+   /* NAlertDialog(
         dialogStyle: DialogStyle(
             titleDivider: true,
             backgroundColor: Theme
@@ -578,9 +568,11 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
               }),
         ]
     ).show(context);
+
+    */
   }
   void MotoboyFinalizou(){
-    NAlertDialog(
+   /* NAlertDialog(
         dialogStyle: DialogStyle(
             titleDivider: true,
             backgroundColor: Theme
@@ -608,29 +600,30 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
               }),
         ]
     ).show(context);
+
+    */
   }
-  Future<void> FinalizarPedido() {
+  Future<void> FinalizarPedido() async {
 
     Map<String,dynamic> dados=Map();
     dados["situacao"]="Pedido Finalizado";
-    _db.collection("Pedidos").doc(widget.detalheCorrida["id_doc"]).update(dados);
+    _db.collection("Pedidos").doc(widget.detalheCorrida!["id_doc"]).update(dados);
 
-    print("QUANTIDADE DE ITENS PARA RETIRAR::${_quant_itens}");
     _db.collection("user_motoboy")
-        .doc(widget.detalheCorrida["boy_id"])
+        .doc(widget.detalheCorrida!["boy_id"])
         .get()
         .then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
-        Map<String, dynamic> dados = documentSnapshot.data();
+        Map<String, dynamic> dados = documentSnapshot.data()as Map<String,dynamic>;
         int meusItens=dados["n_pedidos"];
-        int quantItens=int.parse(widget.detalheCorrida["quant_itens"]);
+        int quantItens=int.parse(widget.detalheCorrida!["quant_itens"]);
         int total= meusItens-quantItens;
         if(total<0){
-          _db.collection("user_motoboy").doc(widget.detalheCorrida["boy_id"])
+          _db.collection("user_motoboy").doc(widget.detalheCorrida!["boy_id"])
               .update({"n_pedidos": 0});
         }else{
 
-          _db.collection("user_motoboy").doc(widget.detalheCorrida["boy_id"])
+          _db.collection("user_motoboy").doc(widget.detalheCorrida!["boy_id"])
               .update({"n_pedidos": total});
         }
 
@@ -654,19 +647,19 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
     //homepageStreamSubscription.cancel();
     homepageStreamSubscription=null;
 
-    return _db.collection("Pedidos").doc(widget.detalheCorrida["id_doc"]).update(dados);
+    return _db.collection("Pedidos").doc(widget.detalheCorrida!["id_doc"]).update(dados);
 
     // AssistenciaMetodo.sendNotificationToDriver(widget.detalheCorrida,texto);
 
 
   }
   void locatePosition() async {
-    posicao_atual = await geolocator.getCurrentPosition(
+    posicao_atual = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
     if(posicao_atual!=null && widget.detalheCorrida!=null){
       _KGooglePlex=
-          CameraPosition(target:  LatLng(posicao_atual.latitude, posicao_atual.longitude), zoom: 14);
+          CameraPosition(target:  LatLng(posicao_atual!.latitude, posicao_atual!.longitude), zoom: 14);
 
     }
 
@@ -677,27 +670,27 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
 
 
 
-  void CriarIconMarker(){
-    if(MotoboyIcon==null){
-      ImageConfiguration imageConfiguration=createLocalImageConfiguration(context,size:Size(2,2));
-      BitmapDescriptor.fromAssetImage(imageConfiguration, "imagens/direcao.png")
-          .then((value)
-      {
-        MotoboyIcon=value;
-      });
-    }
-  }
+  // void CriarIconMarker(){
+  //   if(MotoboyIcon==null){
+  //     ImageConfiguration imageConfiguration=createLocalImageConfiguration(context,size:Size(2,2));
+  //     BitmapDescriptor.fromAssetImage(imageConfiguration, "imagens/direcao.png")
+  //         .then((value)
+  //     {
+  //       MotoboyIcon=value;
+  //     });
+  //   }
+  // }
 
   void verificarEstado(){
-    if(widget.detalheCorrida["id_doc"]!=null) {
-      StreamSubscription<DocumentSnapshot> streamSub;
+    if(widget.detalheCorrida!["id_doc"]!=null) {
+      StreamSubscription<DocumentSnapshot>? streamSub;
       DocumentReference reference = FirebaseFirestore.instance.collection(
-          'Pedidos').doc(widget.detalheCorrida["id_doc"]);
+          'Pedidos').doc(widget.detalheCorrida!["id_doc"]);
       streamSub = reference.snapshots().listen((querySnapshot) {
-        Map<String, dynamic> corridaAtual = querySnapshot.data();
+        Map<String, dynamic> corridaAtual = querySnapshot.data()as Map<String,dynamic>;
         print('Document data:TelaPasseio ${querySnapshot.data()}');
         if (corridaAtual["situacao"]== "Cancelado") {
-          streamSub.cancel();
+          streamSub!.cancel();
           SegundaTela();
 
         }
@@ -709,7 +702,7 @@ class _Tela_PasseioState extends State<Tela_Passeio>{
 
 
 
-  void _moveToSignInScreen(BuildContext context) =>
+  _moveToSignInScreen(BuildContext context) =>
      Navigator.pop(context);
 
 

@@ -4,7 +4,7 @@ import 'package:fogaca_app/Model/Endereco.dart';
 
 class AppData extends ChangeNotifier
 {
-Endereco localidade,dropOffLocation;
+Endereco? localidade,dropOffLocation;
 
 void atualizarlocalEndereco(Endereco endereco){
 
