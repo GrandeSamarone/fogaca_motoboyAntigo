@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flux_validator_dart/flux_validator_dart.dart';
 import 'package:fogaca_app/Controllers/LoginController.dart';
+import 'package:fogaca_app/Pages_user/Tela_Cad_Moto.dart';
 import 'package:fogaca_app/Pages_user/Tela_Cadastro.dart';
 import 'package:fogaca_app/Widget/WICarregando.dart';
 
@@ -203,19 +204,18 @@ class _TelaLoginState extends LoginController {
                             Container(
                               margin: EdgeInsets.only(bottom: 4, top: 8),
                               alignment: Alignment.centerRight,
-                              child: GestureDetector(
-                                child: Text(
-                                  "Esqueceu a senha?",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: const Color(0xffFDFDFD),
-                                      fontFamily:"Brand-Regular",
-                                      fontWeight: FontWeight.w100),
-                                ),
-                                onTap: () {
-                                  TrocarSenha();
-                                },
+                              child: TextButton(
+                                onPressed:(){
+                                 TrocarSenha();
+                                }, child: Text(
+                                "Esqueceu a senha?",
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: const Color(0xffFDFDFD),
+                                    fontFamily:"Brand-Regular",
+                                    fontWeight: FontWeight.w100),
                               ),
+                              )
                             ),
 
                             SizedBox(height: 16,),
@@ -237,27 +237,25 @@ class _TelaLoginState extends LoginController {
                                       fontWeight: FontWeight.w100,
                                     ),),
                                 ),
-                                GestureDetector(
-                                  child: Container(
-                                    margin: EdgeInsets.only(left: 4),
-                                    child: Text(
-                                      "Cadastre-se!",
-                                      style: TextStyle(
-                                          color:Color(0xffc83535),
-                                          fontFamily: "Brand-Regular",
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  onTap: () {
-
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => Tela_Cadastro()
-                                        )
-                                    );
-                                  },
+                                TextButton(
+                                    onPressed:(){
+                                      Map<String, dynamic> Data = new Map();
+                                      Data["nome"]= "_nome";
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => Tela_Cad_Moto(Data)
+                                          )
+                                      );
+                                    }, child:Text(
+                                  "Cadastre-se!",
+                                  style: TextStyle(
+                                      color:Color(0xffc83535),
+                                      fontFamily: "Brand-Regular",
+                                      fontWeight: FontWeight.bold),
+                                ),
                                 )
+
                               ],
                             ),
                             SizedBox(height: 12,),

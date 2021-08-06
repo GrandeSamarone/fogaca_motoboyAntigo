@@ -12,9 +12,9 @@ import 'package:fogaca_app/Widget/WiAlerts.dart';
 
 abstract class CadastroController extends State<Tela_Cad_Moto> with SocialSignInModel{
   var busy=false;
-  var senha;
-  var email;
-  var repetirsenha;
+  var placa;
+  var modelo;
+  var cor;
   var codcity;
   final formKey = GlobalKey<FormState>();
   bool visible_SENHA = true;
@@ -40,7 +40,7 @@ abstract class CadastroController extends State<Tela_Cad_Moto> with SocialSignIn
 
     Motoboy lojista = new Motoboy();
     lojista.nome= widget.dadosMap["nome"];
-    lojista.email= email;
+    //lojista.email= email;
     lojista.cidade=dropDownText;
     lojista.estado= "Rondônia";
     lojista.tipo_dados=widget.dadosMap["tipo_dados"];
@@ -50,7 +50,7 @@ abstract class CadastroController extends State<Tela_Cad_Moto> with SocialSignIn
     lojista.telefone= widget.dadosMap["telefone"];
     lojista.icon_foto="https://firebasestorage.googleapis.com/v0/b/fogaca-app.appspot.com/o/perfil%2Ficonusernfoto.jpg?alt=media&token=370e2f4a-a059-453e-a2f3-a4d8e5d7d7ef";
 
-    RegistrarNovoUsuario(lojista,senha).then((data) {
+    RegistrarNovoUsuario(lojista,"senha").then((data) {
       switch(data.toString()){
         case "sucesso":
           onSucess();
