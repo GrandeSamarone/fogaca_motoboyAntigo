@@ -1,8 +1,18 @@
-
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:fogaca_app/Widget/WIToast.dart';
+import 'package:fogaca_app/Controllers/AtualizarDadosUsuarioController.dart';
+import 'package:fogaca_app/Controllers/LoginController.dart';
+import 'package:fogaca_app/Pages_user/Tela_Login.dart';
+import 'package:fogaca_app/Store/StoreDadosUsuario.dart';
+import 'package:fogaca_app/Widget/Toast.dart';
+
+import 'package:image_picker/image_picker.dart';
+import 'package:mobx/mobx.dart';
+import 'package:ndialog/ndialog.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,9 +26,9 @@ class ProfileTabPage extends StatefulWidget {
 
 class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveClientMixin {
 
-  var controller ;
-  var controllerUser;
-  String? _idUsuarioLogado;
+  final controller = new AtualizarDadosUsuarioController();
+  final controllerUser=LoginController();
+  String _idUsuarioLogado;
   var store;
   String dropdownValue = 'Selecione uma cidade';
   List <String> spinnerItems = [
@@ -33,7 +43,7 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
 
   @override
   Widget build(BuildContext context) {
-    //store=Provider.of<StoreDadosUsuario>(context);
+    store=Provider.of<StoreDadosUsuario>(context);
     _idUsuarioLogado=store.id;
     dropdownValue=store.city;
 
@@ -54,7 +64,11 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
                     CircleAvatar(
                         radius: 80,
                         backgroundColor: Colors.grey,
-                        onBackgroundImageError: (exception, stackTrace){},
+                        onBackgroundImageError: (exception, stackTrace){
+                          return Container(
+                            child: CircularProgressIndicator(),
+                          );
+                        },
                         backgroundImage: store.foto != null
                             ? NetworkImage(store.foto)
                             : NetworkImage("https://firebasestorage.googleapis.com/v0/b/fogaca-app.appspot.com/o/perfil%2Ficonusernfoto.jpg?alt=media&token=370e2f4a-a059-453e-a2f3-a4d8e5d7d7ef")
@@ -70,7 +84,7 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
                     style: TextStyle(color: Colors.redAccent),
                   ),
                   onPressed:(){
-                    EnviarImagem("_idUsuarioLogado");
+                    EnviarImagem(_idUsuarioLogado);
                     // controller.pickerImage();
                   },
                 ),
@@ -80,7 +94,7 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("Nome:",
-                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1!.color, fontSize: 11,fontFamily:  "Brand Bold"),),
+                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color, fontSize: 11,fontFamily:  "Brand Bold"),),
                   ],
                 ),
                 Row(
@@ -112,7 +126,7 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
                   children: [
 
                     Text("Email:",
-                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1!.color, fontSize: 11,fontFamily:  "Brand Bold"),),
+                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color, fontSize: 11,fontFamily:  "Brand Bold"),),
 
                   ],
                 ),
@@ -132,7 +146,7 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
                   children: [
 
                     Text("Cpf/Cnpj:",
-                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1!.color, fontSize: 11,fontFamily:  "Brand Bold"),),
+                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color, fontSize: 11,fontFamily:  "Brand Bold"),),
 
                   ],
                 ),
@@ -153,7 +167,7 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
                   children: [
 
                     Text("Telefone:",
-                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1!.color, fontSize: 11,fontFamily:  "Brand Bold"),),
+                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color, fontSize: 11,fontFamily:  "Brand Bold"),),
 
                   ],
                 ),
@@ -185,7 +199,7 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
                   children: [
 
                     Text("Local de trabalho",
-                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1!.color, fontSize: 11,fontFamily:  "Brand Bold"),),
+                      style: TextStyle(color: Theme.of(context).textTheme.subtitle1.color, fontSize: 11,fontFamily:  "Brand Bold"),),
 
                   ],
                 ),
@@ -227,31 +241,31 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
                         style: TextStyle(color: Colors.redAccent),
                       ),
                       onPressed: (){
-                        // NAlertDialog(
-                        //     dialogStyle: DialogStyle(titleDivider: true,backgroundColor:Theme.of(context).dialogBackgroundColor ),
-                        //     title: Text("Deseja realmente sair?"),
-                        //     content: Text(
-                        //         "Você será redirecionado para a tela de login."),
-                        //     actions: <Widget>[
-                        //
-                        //       TextButton(child: Text("NÃO",style:
-                        //       TextStyle(  color: Theme.of(context).textTheme.headline4.color,),)
-                        //           , onPressed: () {
-                        //             Navigator.pop(context);
-                        //           }),
-                        //       TextButton(child: Text("SIM",style:
-                        //       TextStyle(  color: Theme.of(context).textTheme.headline4.color,),)
-                        //           , onPressed: ()async{
-                        //             store.FecharDados();
-                        //             controllerUser.Logout();
-                        //             await FirebaseFirestore.instance.terminate();
-                        //             //  await FirebaseFirestore.instance.clearPersistence();
-                        //             Navigator.pushNamedAndRemoveUntil(
-                        //                 context, Tela_Login.idScreen, (
-                        //                 route) => false);
-                        //           }),
-                        //     ]
-                        // ).show(context);
+                        NAlertDialog(
+                            dialogStyle: DialogStyle(titleDivider: true,backgroundColor:Theme.of(context).dialogBackgroundColor ),
+                            title: Text("Deseja realmente sair?"),
+                            content: Text(
+                                "Você será redirecionado para a tela de login."),
+                            actions: <Widget>[
+
+                              TextButton(child: Text("NÃO",style:
+                              TextStyle(  color: Theme.of(context).textTheme.headline4.color,),)
+                                  , onPressed: () {
+                                    Navigator.pop(context);
+                                  }),
+                              TextButton(child: Text("SIM",style:
+                              TextStyle(  color: Theme.of(context).textTheme.headline4.color,),)
+                                  , onPressed: ()async{
+                                    store.FecharDados();
+                                    controllerUser.Logout();
+                                    await FirebaseFirestore.instance.terminate();
+                                    //  await FirebaseFirestore.instance.clearPersistence();
+                                    Navigator.pushNamedAndRemoveUntil(
+                                        context, Tela_Login.idScreen, (
+                                        route) => false);
+                                  }),
+                            ]
+                        ).show(context);
                       },
                     )
                   ],
@@ -293,7 +307,7 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
               ),
               TextButton(
                   onPressed: (){
-                  //  AlterarDados(text,dadosAlterado,_idUsuarioLogado);
+                    AlterarDados(text,dadosAlterado,_idUsuarioLogado);
                     Navigator.pop(context);
                   },
                   child: Text("Salvar")
@@ -323,14 +337,14 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
                             icon: Icon(Icons.arrow_drop_down),
                             iconSize: 24,
                             elevation: 16,
-                            style: TextStyle(color: Theme.of(context).textTheme.headline4!.color, fontSize: 18,fontFamily:  "Brand-Bold"),
+                            style: TextStyle(color: Theme.of(context).textTheme.headline4.color, fontSize: 18,fontFamily:  "Brand-Bold"),
                             underline: Container(
                               height: 2,
-                              color: Theme.of(context).textTheme.headline4!.color,
+                              color: Theme.of(context).textTheme.headline4.color,
                             ),
-                            onChanged: (String? data) {
+                            onChanged: (String data) {
                               setState(() {
-                                dropdownValue=data!;
+                                dropdownValue=data;
                               });
                             },
                             items: spinnerItems.map<DropdownMenuItem<String>>((String value) {
@@ -357,7 +371,7 @@ class ProfileTabPageState extends State<ProfileTabPage> with AutomaticKeepAliveC
                               TextButton(
                                   onPressed: (){
                                     // AlterarCidade(dropdownValue);
-                                    Alterarcity(dropdownValue,"_idUsuarioLogado");
+                                    Alterarcity(dropdownValue,_idUsuarioLogado);
 
                                     Navigator.pop(context);
                                   },

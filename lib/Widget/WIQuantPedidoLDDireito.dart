@@ -1,29 +1,29 @@
+import 'package:badges/badges.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import 'package:flutter/Material.dart';
-
-class WIQuantPedidoLDDireito extends StatelessWidget{
-
+class WIQuantPedidoLDDireito extends StatelessWidget {
   final Function() callback;
-  var _N_Pedidos;
+  String _N_Pedidos;
   WIQuantPedidoLDDireito({
-   required this.callback,
-  }
-      );
+    this.callback,
+  });
 
   @override
   Widget build(BuildContext context) {
-
     return Positioned(
       top: 45.0,
       right: 22.0,
       child: GestureDetector(
-        onTap:callback,
+        onTap: callback,
         child: Container(
           decoration: BoxDecoration(
-            //   color: Colors.white,
+              //   color: Colors.white,
               borderRadius: BorderRadius.circular(22.0),
               boxShadow: [
                 BoxShadow(
+                    color: Theme.of(context).dialogBackgroundColor,
+                    // color: Theme.of(context).textTheme.headline4.color,
                     blurRadius: 6.0,
                     spreadRadius: 0.5,
                     offset: Offset(
@@ -32,8 +32,10 @@ class WIQuantPedidoLDDireito extends StatelessWidget{
                     ))
               ]),
           child: CircleAvatar(
-              child: Image.asset("imagens/moto_android.png",height:35,),
-
+            child: Image.asset(
+              "imagens/moto_android.png",
+              height: 35,
+            ),
           ),
         ),
       ),

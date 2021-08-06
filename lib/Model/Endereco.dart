@@ -1,10 +1,10 @@
 class Endereco
 {
-  var placeFormattedAddress;
-  var placeName;
-  var placeId;
-  var latitude;
-  var longitude;
+  String placeFormattedAddress;
+  String placeName;
+  String placeId;
+  double latitude;
+  double longitude;
 
   Endereco(
   {

@@ -1,40 +1,36 @@
-
+import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fogaca_app/Model/UserStateModel.dart';
 import 'package:fogaca_app/Page/Mapa_Home.dart';
-import 'package:fogaca_app/Pages_user/Tela_Login.dart';
-
+import 'package:provider/provider.dart';
 class SplashScreen extends StatefulWidget{
 
   static const  String idScreen="splash_screen";
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<SplashScreen> with UserStateModel {
+class _HomeState extends State<SplashScreen> {
+
   @override
-  void initState() {
-    super.initState();
-    SystemChrome.setEnabledSystemUIOverlays([]);
-    Future.delayed(Duration(milliseconds: 1500), () async {
-      initialize();
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+
+
+    Timer(Duration(seconds:5),(){
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(
+          builder: (_)=>Mapa_Home()));
     });
   }
 
-  initialize() async {
-    await reloadUser();
-    if (!isLogged()) {
-      Navigator.of(context).push(
-        PageRouteBuilder(
-            transitionDuration: Duration(milliseconds: 1500),
-            maintainState: true,
-            pageBuilder: (c, a1, a2) {
-              return Tela_Login();
-            }),
-      );
-    } else {
-      Navigator.of(context).pushReplacementNamed(Mapa_Home.idScreen);
-    }
+  @override
+  initState() {
+    //inicia a tela toda
+    SystemChrome.setEnabledSystemUIOverlays([]);
+  //  _RecuperarDadosUsuario();
+    super.initState();
   }
 
   @override

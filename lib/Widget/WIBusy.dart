@@ -2,23 +2,21 @@ import 'package:flutter/material.dart';
 
 class WIBusy extends StatelessWidget{
   bool busy =false;
-  Widget ?child;
+  Widget child;
 
   WIBusy({
-    required this.busy,
-          this.child,
+    @required this.busy,
+    @required this.child,
   });
   @override
   Widget build(BuildContext context) {
 
-    return busy?
-    Container(
-      width: double.infinity,
-      height: 100,
+    return busy
+        ? Container(
       child:Center(
         child: CircularProgressIndicator(),
       ),
-    ):child!;
+    ):child;
 
   }
 }

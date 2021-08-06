@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 
 class CPTextFieldForm extends StatelessWidget{
 
-  final String ?labeltext;
-  String Function() ?errotext;
-  final bool ?obscureText;
-  final TextCapitalization? textCapitalization;
-  Function(String)? changed;
-  final int? maxlenght;
-  final TextInputType? type;
-  TextEditingController? Controller = TextEditingController();
+  final String labeltext;
+  String Function() errotext;
+  final bool obscureText;
+  final TextCapitalization textCapitalization;
+  Function(String) changed;
+  final int maxlenght;
+  final TextInputType type;
+  TextEditingController Controller = TextEditingController();
   CPTextFieldForm({
     this.labeltext,
     this.changed,
@@ -32,7 +32,7 @@ class CPTextFieldForm extends StatelessWidget{
       keyboardType: TextInputType.text,
       obscureText: true,
       decoration:InputDecoration(
-          errorText:errotext==null?null:errotext!() ,
+          errorText:errotext==null?null:errotext() ,
           labelText:labeltext,
           labelStyle:TextStyle(
             fontWeight:FontWeight.w400,

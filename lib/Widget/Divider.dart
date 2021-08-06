@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 
-class WIDividerWidget extends StatelessWidget{
+class DividerWidget extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
 
     return Divider(
       height:1.0,
-      color: Colors.white54,
+      color:Theme.of(context).textTheme.bodyText2.color,
       thickness:1.0,
     );
   }

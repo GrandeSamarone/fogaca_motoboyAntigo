@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cpfcnpj/cpfcnpj.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fogaca_app/Model/Pedido.dart';
 
 class ControllerPedido{
-  /*
   CollectionReference _db = FirebaseFirestore.instance.collection("Pedidos");
   String codcity;
   String erro;
@@ -37,6 +37,4 @@ class ControllerPedido{
 
 
   }
-
-   */
 }

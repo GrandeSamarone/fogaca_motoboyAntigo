@@ -1,299 +1,272 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flux_validator_dart/flux_validator_dart.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:fogaca_app/Components/CPButtonText.dart';
+import 'package:fogaca_app/Components/CPButtonVermelho.comp.dart';
+import 'package:fogaca_app/Components/CPTextFormField.dart';
 import 'package:fogaca_app/Controllers/LoginController.dart';
-import 'package:fogaca_app/Pages_user/Tela_Cad_Moto.dart';
-import 'package:fogaca_app/Pages_user/Tela_Cadastro.dart';
-import 'package:fogaca_app/Widget/WICarregando.dart';
+import 'package:fogaca_app/Page/SplashScreen.dart';
+import 'package:fogaca_app/Widget/Toast.dart';
+import 'package:fogaca_app/Widget/WIBusy.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'Tela_Cadastro.dart';
+import 'package:ndialog/ndialog.dart';
+import 'package:provider/provider.dart';
+
+import 'Tela_RedefinirSenha.dart';
 
 
 class Tela_Login extends StatefulWidget{
   static const  String idScreen="login";
+  static const url ="https://api.whatsapp.com/send?phone=556992417580&text=ol%C3%A1";
 
   @override
-  _TelaLoginState createState() => _TelaLoginState();
+  _Tela_LoginState createState() => _Tela_LoginState();
 }
 
-class _TelaLoginState extends LoginController {
+class _Tela_LoginState extends State<Tela_Login> {
+  Map<String,dynamic> _dadosUsuario;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final controllerLogin = new LoginController();
+
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final scaffoldkey=new GlobalKey<ScaffoldState>();
+  var busy=false;
+  String _email;
+  String _senha;
+  final _formKey = GlobalKey<FormState>();
+
+  var encoded = Uri.encodeFull(Tela_Login.url);
+
+  //Açao do botao Login
+  SignInEmail(){
+
+    setState(() {
+      busy=true;
+    });
+    controllerLogin.LoginEmail(_email,_senha).then((data) {
+
+      print("INFORMAÇÃO RETORNADA::"+data.toString());
+
+      if(data.toString()=="sucesso"){
+        onSucessEmail();
+      }else if(data.toString()=="[firebase_auth/wrong-password] The password is invalid or the user does not have a password."){
+        ToastMensagem("Senha incorreta.", context);
+      }else if(data.toString()=="[firebase_auth/user-not-found] There is no user record corresponding to this identifier. The user may have been deleted."){
+        ToastMensagem("Conta não cadastrada.", context);
+      }else if(data.toString()=="esta conta não existe."){
+        ToastMensagem("esta conta nao existe.", context);
+      }
+
+    }).catchError((err){
+      print("ERROR!!!"+err.toString());
+      onErrorEmail(err.toString());
+    }).whenComplete(() {
+      onCompleteEmail();
+    });
+
+
+  }
+  onSucessEmail(){
+
+    Navigator.pushNamedAndRemoveUntil(context, SplashScreen.idScreen, (route) => false);
+  }
+  onErrorEmail(String erro){
+    print("Erro::"+erro);
+  }
+  onCompleteEmail(){
+
+    setState(() {
+      busy=false;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    size = MediaQuery.of(context).size;
-    EdgeInsets padding = MediaQuery.of(context).padding;
-    return WillPopScope(
-      onWillPop: () {
-        return  _moveToSignInScreen(context);
-      },
-      child: Scaffold(
-        key: scaffold,
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      backgroundColor:  Color(0xFFFDFDFD),
         body: Stack(
-          children: [
-            Container(
-              alignment: Alignment.center,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  SizedBox(
-                    height: padding.top,
-                  ),
-                  Expanded(
-                      flex: 2,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            alignment: Alignment.center,
-                            child: Hero(
-                              tag: "logo",
-                              child: Image.asset("imagens/logoicon.png",
-                                width: size.width * 0.50,),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          Text(
-                            "FOGAÇA MOTOBOYS",
-                            style: TextStyle(
-                                fontFamily: "Brand Bold",
-                                color: Color(0xf2c83535),
-                                fontSize: 22,
-                                letterSpacing: 1,
-                                fontWeight: FontWeight.w800),
-                          )
-                        ],
-                      )),
-                  Expanded(
-                    flex: 4,
-                    child: Container(
-                      padding: EdgeInsets.only(
-                          left: size.width * 0.1, right: size.width * 0.1),
-                      child: Form(
-                        key: formKey,
-                        child: ListView(
-                          children: [
-                            Container(
+         children:[
+           LayoutBuilder(
+             builder: (BuildContext context, BoxConstraints constraints) {
+               return Container(
+                 height: constraints.maxHeight / 1,
 
-                              decoration:BoxDecoration(
-                                  borderRadius:
-                                  BorderRadius.circular(8),
-                                  color:Color(0xFF4B4343),
-                                  boxShadow:[
-                                    new BoxShadow(
-                                        color:Colors.black45,
-                                        offset:new Offset(1, 2.0),
-                                        blurRadius: 5,
-                                        spreadRadius: 2
-                                    )
-                                  ]
-                              ),
-                              child: TextFormField(
+                 padding: EdgeInsets.only(
+                   top: 60,
+                   left: 20,
+                   right: 20,
+                   bottom: 40,
+                 ),
+                 child: Column(
+                   mainAxisAlignment: MainAxisAlignment.center,
+                   children: <Widget>[
+                     Container(
+                       height: 490,
+                       decoration: BoxDecoration(
+                         color:Color(0xFFFDFDFD),
+                         boxShadow: [
+                           new BoxShadow(
+                             color: Colors.black12,
+                             offset: new Offset(1, 2.0),
+                             blurRadius: 5,
+                             spreadRadius: 1,
+                           ),
+                         ],
+                       ),
+                       child: Padding(
+                         padding: EdgeInsets.only(
+                           left: 30,
+                           right: 30,
+                           top: 20,
+                         ),
+                         child: Form(
+                           key: _formKey,
+                           child: Column(
+                             children: <Widget>[
+                               Image.asset("imagens/fogacasemnome.png",
+                                 width:180,
+                                 height: 120,
+                               ),
+                               SizedBox(
+                                 height:10,
+                               ),
+                               CPTextFormField(
+                                 textCapitalization: TextCapitalization.none,
+                                 type: TextInputType.emailAddress,
+                                 obscureText: false,
+                                 labeltext:"E-mail do Usuário",
 
-                                controller: emailController,
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return '*e-mail é obrigatório.';
-                                  }else if(Validator.email(value)){
-                                    return '*Digite um e-mail válido.';
-                                  }else if(value.contains(" ")){
-                                    return '*erro: e-mail contém espaço.';
-                                  }
-                                  return null;
-                                },
-                                onSaved: (input) => email = input,
-                                textInputAction: TextInputAction.next,
-                                keyboardType: TextInputType.emailAddress,
-                                decoration: InputDecoration(
-                                  labelText:"E-mail",
+                                 validator: (value) {
+                                   if (value.isEmpty) {
+                                     return 'Digite um e-mail.';
+                                   }else if(!value.contains("@")){
+                                     return 'Digite um e-mail válido.';
+                                   }else if(value.contains(" ")){
+                                     return '*erro: e-mail contém espaço.';
+                                   }
+                                   return null;
+                                 },
+                                 onSaved: (input) => _email = input,
+                               ),
 
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(
-                                        width: 2,  color:Color(0x8dc83535)),
-                                  ),
-                                  errorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                    BorderSide(width: 2, color: Colors.red),
-                                  ),
-                                  focusedErrorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                    BorderSide(width: 2, color: Colors.red),
-                                  ),
-                                  labelStyle:TextStyle(
-                                    fontFamily: "Brand-Regular",
-                                    color: const Color(0xFFCECACA),
-                                    fontWeight:FontWeight.w400,
-                                    fontSize: 12,
-                                  ),
-                                  hintStyle: TextStyle(
-                                    color: const Color(0xFFCECACA),
-                                    fontSize: 10.0,
-                                  ),
-                                ),
-                                style: TextStyle(
-                                  color: const Color(0xFFCECACA),
-                                  fontSize: 14.0,
-                                  fontFamily: "Brand-Regular",),
+                               SizedBox(height:5),
+                               CPTextFormField(
+                                 type: TextInputType.visiblePassword,
+                                 textCapitalization: TextCapitalization.none,
+                                 obscureText: true,
+                                 labeltext:"Senha",
 
-                              ),
-                            ),
-                            SizedBox(
-                              height: 12,
-                            ),
+                                 validator: (value) {
+                                   if (value.isEmpty) {
+                                     return "Digite uma senha." ;
+                                   }else if(value.length<=5){
+                                     return 'Senha no mínimo 6 digitos';
+                                   }
+                                   return null;
+                                 },
+                                 onSaved: (input) => _senha = input,
+                               ),
 
-                            Container(
-                              decoration:BoxDecoration(
-                                  borderRadius:
-                                  BorderRadius.circular(8),
-                                  color:Color(0xFF4B4343),
-                                  boxShadow:[
-                                    new BoxShadow(
-                                        color:Colors.black45,
-                                        offset:new Offset(1, 2.0),
-                                        blurRadius: 5,
-                                        spreadRadius: 2
-                                    )
-                                  ]
-                              ),
-                              child: TextFormField(
+                               SizedBox(height:5),
+                               Container(
+                                 alignment: Alignment.centerRight,
+                                 child:CPButtonText(
+                                   text:"Esqueceu a senha?",
+                                   callback:(){
+                                     Navigator.push(context,MaterialPageRoute(
+                                         builder:(context)=>Tela_RedefinirSenha()
+                                     ),
+                                     );
+                                   },
+                                 ),
+                               ),
+                               SizedBox(height:10),
+                               WIBusy(
+                                 busy: busy,
+                                 child: CPButton(text: "Entrar",
+                                   width: double.infinity,
+                                   callback: (){
+                                     if (_formKey.currentState.validate()) {
+                                       _formKey.currentState.save();
+                                         SignInEmail();
+                                     }
+                                   },
+                                 ),
+                               ),
+                               Row(
+                                   crossAxisAlignment:CrossAxisAlignment.center,
+                                   mainAxisAlignment:MainAxisAlignment.center,
+                                   children: [
 
-                                controller: passwordController,
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return "*Digite uma senha." ;
-                                  }else if(value.length<=5){
-                                    return '*Senha no mínimo 6 dígitos';
-                                  }
-                                  return null;
-                                },
-                                onSaved: (input) => senha = input,
-                                obscureText: true,
-                                decoration: InputDecoration(
-                                  labelText:"Senha",
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: BorderSide(
-                                          width: 2,  color:Color(0x8dc83535))
-                                  ),
-                                  errorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                    BorderSide(width: 2, color: Colors.red),
-                                  ),
-                                  focusedErrorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide:
-                                    BorderSide(width: 2, color: Colors.red),
+                                     Text(
+                                         "Não possui uma conta?",
+                                         style:TextStyle(
+                                           color: const Color(0xFF242323),
+                                           fontFamily:"Brand-Regular",
+                                           fontWeight: FontWeight.w100,
+                                         )
+                                     ) ,
 
-                                  ),
-                                  labelStyle:TextStyle(
-                                    fontFamily: "Brand-Regular",
-                                    color: const Color(0xFFCECACA),
-                                    fontWeight:FontWeight.w400,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                style: TextStyle(
-                                  color: const Color(0xFFCECACA),
-                                  fontSize: 14.0,
-                                  fontFamily: "Brand-Regular",),
-                              ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.only(bottom: 4, top: 8),
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                onPressed:(){
-                                 TrocarSenha();
-                                }, child: Text(
-                                "Esqueceu a senha?",
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: const Color(0xffFDFDFD),
-                                    fontFamily:"Brand-Regular",
-                                    fontWeight: FontWeight.w100),
-                              ),
-                              )
-                            ),
+                                     CPButtonText(
+                                       text: "Cadastre-se",
 
-                            SizedBox(height: 16,),
+                                       callback:(){
+                                         Navigator.push(context,MaterialPageRoute(
+                                             builder:(context)=>Tela_Cadastro()
+                                         ),
+                                         );
+                                       },
+
+                                     )
+                                   ]
+                               ),
+                             ],
+                           ),
+                         ),
+                       ),
+                     ),
+
+                   ],
+                 ),
+
+               );
+             },
+           ),
 
 
-                            LoginButton(),
 
-                            SizedBox(
-                              height: 16,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  child: Text("Não tem uma conta?",
-                                    style: TextStyle(
-                                      color: const Color(0xf2FDFDFD),
-                                      fontFamily:"Brand-Regular",
-                                      fontWeight: FontWeight.w100,
-                                    ),),
-                                ),
-                                TextButton(
-                                    onPressed:(){
-                                      Map<String, dynamic> Data = new Map();
-                                      Data["nome"]= "_nome";
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => Tela_Cad_Moto(Data)
-                                          )
-                                      );
-                                    }, child:Text(
-                                  "Cadastre-se!",
-                                  style: TextStyle(
-                                      color:Color(0xffc83535),
-                                      fontFamily: "Brand-Regular",
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                )
+           Positioned(
+             left: 0.0,
+             right: 0.0,
+             top: 0.0,
+             child: Image.asset(
+               "imagens/Vector_top.png",
+             ),
+           ),
 
-                              ],
-                            ),
-                            SizedBox(height: 12,),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          Positioned(
+          left: 0.0,
+          right: 0.0,
+          bottom: 0.0,
+          child:IgnorePointer(
+            child: Image.asset(
+            "imagens/Vector_bottom.png",
+          ),
+          )
+          )
+         ],
 
-            Visibility(
-                child: Container(
-                  width: size.width,
-                  height: size.height,
-                  color: Colors.black.withAlpha(140),
-                ),
-                visible: isReset),
-            Visibility(visible: loading, child: WICarregando()),
-          ],
         ),
-        floatingActionButton: isReset?FloatingActionButton.extended(
-          onPressed: (){
-            Navigator.pop(context);
-            setState(() {
-              isReset=false;
-            });
-          },
-          label: Text("Fechar"),
-          icon: Icon( Icons.cancel),
-        ):null,
-      ),
+
     );
   }
-  _moveToSignInScreen(BuildContext context) {
-  }
-
 }
 
 

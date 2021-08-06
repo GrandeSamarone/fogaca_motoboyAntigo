@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:fogaca_app/Model/Historico.dart';
 import 'package:fogaca_app/Notificacao/PushNotificacao.dart';
 import 'package:fogaca_app/Widget/WICustomFutureBuilder.dart';
+import '../Pages_pedido/TelaVerHistorico.dart';
+import 'package:fogaca_app/Widget/Toast.dart';
 import 'package:provider/provider.dart';
 
 class EarningTabePage extends StatefulWidget{
@@ -17,14 +19,14 @@ class _EarningTabePageState extends State<EarningTabePage> with AutomaticKeepAli
   @override
   Widget build(BuildContext context) {
     FirebaseAuth auth = FirebaseAuth.instance;
-    User? usuarioLogado =  auth.currentUser;
+    User usuarioLogado =  auth.currentUser;
   return Scaffold(
 
         body:WICustomFutureBuilder(
             colletion: "Pedidos",
             estado:"Fechado",
             msgvazio: "Nenhum histórico encontrado.",
-          //  id_usuario: usuarioLogado!.uid
+            id_usuario: usuarioLogado.uid
         ),
 
     );

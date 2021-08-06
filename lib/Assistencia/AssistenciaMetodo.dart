@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+
+import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:fogaca_app/Model/DirecaoDetalhes.dart';
 import 'package:fogaca_app/Model/Endereco.dart';
 import 'package:fogaca_app/Model/Pedido.dart';
@@ -11,6 +13,7 @@ import 'package:http/http.dart' as http;
 import 'RequestAssist.dart';
 
 class AssistenciaMetodo{
+ static StreamSubscription<Position> homeTabPageStreamSubscription;
   static Future<String> seachCoordinateAddress(Position position,context)async
   {
        String placeAdress="";

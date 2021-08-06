@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 
 class CPTextField extends StatefulWidget{
 
-  final String? labeltext;
-  String Function()? errotext;
-  final bool ?obscureText;
-  final TextCapitalization ?textCapitalization;
-   Function(dynamic)? changed;
-  final int ?maxlenght;
-  final TextInputType ?type;
-  TextEditingController ?Controller = TextEditingController();
+  final String labeltext;
+  String Function() errotext;
+  final bool obscureText;
+  final TextCapitalization textCapitalization;
+   Function(dynamic) changed;
+  final int maxlenght;
+  final TextInputType type;
+  TextEditingController Controller = TextEditingController();
   CPTextField({
     this.labeltext,
     this.changed,
@@ -37,7 +37,7 @@ class _CPTextFieldState extends State<CPTextField> {
       keyboardType: widget.type,
       decoration: InputDecoration(
           labelText: widget.labeltext,
-          errorText: widget.errotext==null?null:widget.errotext!(),
+          errorText: widget.errotext==null?null:widget.errotext(),
           labelStyle:TextStyle(
             fontWeight:FontWeight.w400,
             fontSize: 12,
@@ -47,7 +47,7 @@ class _CPTextFieldState extends State<CPTextField> {
                 .of(context)
                 .textTheme
                 .subtitle1
-                !.color,
+                .color,
             fontSize: 10.0,
           )
       ),

@@ -1,26 +1,26 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Motoboy {
-  var _id;
-  var _token;
-  var _nome;
-  var _tipo_user;
-  var _icon_foto;
-  var _tipo_dados;
-  var _cpf_cnpj;
-  var _email;
-  var _senha;
-  var _telefone;
-  var _cidade;
-  var _cod;
-  var _modelo;
-  var _cor;
-  var _placa;
-  var _permissao;
-  var _online;
-  var _estado;
-  var _estrela;
-  var _n_pedidos;
+  String _id;
+  String _token;
+  String _nome;
+  String _tipo_user;
+  String _icon_foto;
+  String _tipo_dados;
+  String _cpf_cnpj;
+  String _email;
+  String _senha;
+  String _telefone;
+  String _cidade;
+  String _cod;
+  String _modelo;
+  String _cor;
+  String _placa;
+  bool _permissao;
+  bool _online;
+  String _estado;
+  String _estrela;
+  int _n_pedidos;
 
 
   Motoboy();

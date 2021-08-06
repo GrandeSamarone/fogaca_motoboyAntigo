@@ -1,4 +1,6 @@
 import 'dart:math';
+
+import 'package:badges/badges.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -16,11 +18,12 @@ import 'package:fogaca_app/TabsPage/HistoricoTabePage.dart';
 import 'package:fogaca_app/TabsPage/HomeTabePage.dart';
 import 'package:fogaca_app/TabsPage/ProfileTabPage.dart';
 import 'package:fogaca_app/TabsPage/RatingTabPage.dart';
-
+import 'package:fogaca_app/Widget/Toast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mobx/mobx.dart';
+import 'package:ndialog/ndialog.dart';
 import 'dart:async';
 
 import 'package:provider/provider.dart';
@@ -39,31 +42,31 @@ class Mapa_Home extends StatefulWidget {
 class _HomeState extends State<Mapa_Home> with SingleTickerProviderStateMixin {
 
 
-  TabController?tabController;
+  TabController tabController;
   int selectedIndex = 0;
-  List<Pedido> ?pedidos;
-  String ?estrela;
-  double ?estrelaDouble;
+  List<Pedido> pedidos;
+  String estrela;
+  double estrelaDouble;
   final FirebaseMessaging firebaseMessaging=FirebaseMessaging.instance;
- // StoreDadosUsuario ?controllerDadosUsuario;
+  StoreDadosUsuario controllerDadosUsuario;
   PushNotificacao pushNotificacao= PushNotificacao();
   void onItemClicked(int index)
   {
     setState(() {
       selectedIndex=index;
-      tabController!.index=selectedIndex;
+      tabController.index=selectedIndex;
     });
 
 
   }
-  ReactionDisposer ?reactionDisposer;
+  ReactionDisposer reactionDisposer;
   void didChangeDependencies(){
     super .didChangeDependencies();
 
 
 
-  //  controllerDadosUsuario=Provider.of<StoreDadosUsuario>(context);
-    //controllerDadosUsuario!.DadosMotoboy();
+    controllerDadosUsuario=Provider.of<StoreDadosUsuario>(context);
+    controllerDadosUsuario.DadosMotoboy();
 
   }
   @override
@@ -79,7 +82,7 @@ class _HomeState extends State<Mapa_Home> with SingleTickerProviderStateMixin {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-  tabController!.dispose();
+  tabController.dispose();
   }
 
   @override

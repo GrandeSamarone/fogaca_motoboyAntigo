@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 
 class CPTextFormField extends StatefulWidget{
 
-  final String ?labeltext;
-  String Function() ?errotext;
-  String Function(String?) ?validator;
-  Function(String?) ?onSaved;
-  final bool? obscureText;
-  final TextCapitalization? textCapitalization;
-  Function(dynamic) ?changed;
-  final int? maxlenght;
-  final TextInputType? type;
-  TextEditingController ?Controller = TextEditingController();
+  final String labeltext;
+  String Function() errotext;
+  String Function(String) validator;
+  String Function(String) onSaved;
+  final bool obscureText;
+  final TextCapitalization textCapitalization;
+  Function(dynamic) changed;
+  final int maxlenght;
+  final TextInputType type;
+  TextEditingController Controller = TextEditingController();
   CPTextFormField({
     this.labeltext,
     this.changed,
@@ -23,7 +23,7 @@ class CPTextFormField extends StatefulWidget{
     this.errotext,
     this.type,
     this.Controller,
-   required this.validator,
+    this.validator,
     this.onSaved
   });
 
@@ -37,9 +37,9 @@ class _CPTextFieldState extends State<CPTextFormField> {
     // TODO: implement build
     return
       TextFormField(
-        textCapitalization: widget.textCapitalization!,
+        textCapitalization: widget.textCapitalization,
         validator:widget.validator,
-        obscureText: widget.obscureText!,
+        obscureText: widget.obscureText,
         maxLength:widget.maxlenght,
         controller: widget.Controller,
         keyboardType: widget.type,
