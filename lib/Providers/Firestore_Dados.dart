@@ -10,14 +10,10 @@ import 'package:fogaca_app/Model/Pedido.dart';
 
 class Dados_usuario extends ChangeNotifier {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  Motoboy usuario;
-  String _nome;
-  String pushCod;
+  Motoboy? usuario;
+  String ?_nome;
+  String ?pushCod;
 
-  String get nome => _nome;
-  set nome(String value) {
-    _nome = value;
-  }
 
 
   alterarNome(String nome){
@@ -27,9 +23,9 @@ class Dados_usuario extends ChangeNotifier {
 
   Stream<List<Pedido>> GetPedidos(){
     FirebaseAuth auth = FirebaseAuth.instance;
-    User usuarioLogado =  auth.currentUser;
+    User ?usuarioLogado =  auth.currentUser;
     return _db.collection("Pedidos")
-        .where('boy_id',isEqualTo: usuarioLogado.uid)
+        .where('boy_id',isEqualTo: usuarioLogado!.uid)
         .where("estado",isEqualTo:"Aberto")
         .snapshots()
         .map((event) => event.docs.map((dadosPedido)
@@ -38,23 +34,23 @@ class Dados_usuario extends ChangeNotifier {
 
   Stream<List<Motoboy>> GetClientes(){
     FirebaseAuth auth = FirebaseAuth.instance;
-    User usuarioLogado =  auth.currentUser;
+    User ?usuarioLogado =  auth.currentUser;
 
-    print("DADOS DO MOTOBOY ONLINE PROVIDER:::${usuarioLogado.uid}");
+    print("DADOS DO MOTOBOY ONLINE PROVIDER:::${usuarioLogado!.uid}");
     return _db.collection("user_motoboy").where('id',isEqualTo:usuarioLogado.uid)
         .snapshots().map((event) => event.docs.map((dados)
     =>Motoboy.fromFirestore(dados.data())).toList());
   }
 
 
-  Future<void> Atualizar_Online_Offline(Map on_off) {
+  Future<void> Atualizar_Online_Offline(Map<String,dynamic> on_off) {
     FirebaseAuth auth = FirebaseAuth.instance;
-    User usuarioLogado =  auth.currentUser;
-    return _db.collection("user_motoboy").doc(usuarioLogado.uid).update(on_off);
+    User ?usuarioLogado =  auth.currentUser;
+    return _db.collection("user_motoboy").doc(usuarioLogado!.uid).update(on_off);
   }
  Future<void> Atualizar_Pedido(List<Motoboy> motoboy,String id,String quant ) {
     FirebaseAuth auth = FirebaseAuth.instance;
-    User usuarioLogado =  auth.currentUser;
+    User? usuarioLogado =  auth.currentUser;
     Map<String,dynamic> dados=Map();
     dados["situacao"]="Corrida Aceita";
     dados["boy_foto"]=motoboy[0].icon_foto;
@@ -72,26 +68,26 @@ class Dados_usuario extends ChangeNotifier {
     return _db.collection("Pedidos").doc(id).update(dados);
 
   }
-Future<void> Atualizar_CorridaMotoboy(String Npedidos) {
-  int QuantItens = int.tryParse(Npedidos);
+Future<void> Atualizar_CorridaMotoboy(String Npedidos)async {
+  int ?QuantItens = int.tryParse(Npedidos);
     FirebaseAuth auth = FirebaseAuth.instance;
-    User usuarioLogado =  auth.currentUser;
+    User? usuarioLogado =  auth.currentUser;
 
 
   _db.collection('user_motoboy')
-      .where("id",isEqualTo:usuarioLogado.uid)
+      .where("id",isEqualTo:usuarioLogado!.uid)
       .get()
       .then((QuerySnapshot querySnapshot) {
     querySnapshot.docs.forEach((doc) {
       int n_pedidos=doc["n_pedidos"];
 
-      int total=n_pedidos+QuantItens;
+      int total=n_pedidos+QuantItens!;
 
       Map<String,dynamic> dados=Map();
       dados["situacao"]="Saiu para entrega";
       dados["n_pedidos"]=total;
 
-      return _db.collection("user_motoboy").doc(usuarioLogado.uid).update(dados);
+    //  return _db.collection("user_motoboy").doc(usuarioLogado.uid).update(dados);
     });
   });
 

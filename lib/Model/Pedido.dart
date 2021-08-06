@@ -1,29 +1,29 @@
 
 class Pedido {
-  String _id_usuario;
-  String _id_doc;
-  String _nome_ponto;
-  String _token_ponto;
-  String _icon_loja;
-  String _telefone;
-  String _situacao;
-  String _end_ponto;
-  String _distrito;
-  String _lat_ponto;
-  String _long_ponto;
-  String _estado;
-  String _quant_itens;
-  String _data;
-  String _hora;
-  int _time;
-  String _boy_nome;
-  String _boy_telefone;
-  String _boy_moto_modelo;
-  String _boy_moto_placa;
-  String _boy_moto_cor;
-  String _boy_foto;
-  String _boy_token;
-  String _boy_id;
+  var _id_usuario;
+  var _id_doc;
+  var _nome_ponto;
+  var _token_ponto;
+  var _icon_loja;
+  var _telefone;
+  var _situacao;
+  var _end_ponto;
+  var _distrito;
+  var _lat_ponto;
+  var _long_ponto;
+  var _estado;
+  var _quant_itens;
+  var _data;
+  var _hora;
+  var _time;
+  var _boy_nome;
+  var _boy_telefone;
+  var _boy_moto_modelo;
+  var _boy_moto_placa;
+  var _boy_moto_cor;
+  var _boy_foto;
+  var _boy_token;
+  var _boy_id;
 
   Pedido();
 

@@ -12,7 +12,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:fogaca_app/Model/Pedido.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-import 'NotificacaoDialog.dart';
 
 class PushNotificacao {
   final FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;

@@ -1,11 +1,11 @@
 
 class DirecaoDetalhes
 {
-int distanciaValue;
-int duracaoValue;
-String distanciaText;
-String duracaotxt;
-String encodedPoints;
+var distanciaValue;
+var duracaoValue;
+var distanciaText;
+var duracaotxt;
+var encodedPoints;
 
 DirecaoDetalhes({
   this.distanciaValue,

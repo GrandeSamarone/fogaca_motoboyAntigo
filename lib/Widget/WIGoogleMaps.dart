@@ -1,8 +1,6 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:fogaca_app/Providers/Prov_Thema_black_light.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -13,18 +11,12 @@ class WIGoogleMaps extends StatefulWidget{
 }
 
 class _WIGooleMapsState extends State<WIGoogleMaps> {
+  GoogleMapController? controllerMaps;
 
-  GoogleMapController controllerMaps;
-  var geolocator = Geolocator();
-  ThemeChanger themeChanger;
-  Position posicao_atual;
-  GoogleMapController controller_Maps;
+
 
   @override
   Widget build(BuildContext context) {
-    themeChanger = Provider.of<ThemeChanger>(context, listen: false);
-  print("ThemaAlterar::"+themeChanger.isDark().toString());
-    //mudança do thema
     return GoogleMap(
       //padding: EdgeInsets.only(top: 300),
       // mapType: MapType.normal,
@@ -42,11 +34,10 @@ class _WIGooleMapsState extends State<WIGoogleMaps> {
   }
 
   changeMapMode() {
-      if (themeChanger.isDark()) {
-        getJsonFile("imagens/maps_styles/mapsdark.json").then(setMapStyle);
-      } else {
-        getJsonFile("imagens/maps_styles/mapslight.json").then(setMapStyle);
-      }
+    rootBundle.loadString('imagens/maps_styles/mapsdark.json').then((string) {
+      setMapStyle(string);
+    });
+    //getJsonFile("imagens/maps_styles/mapsdark.json").then(setMapStyle);
   }
 
   Future<String> getJsonFile(String path) async {
@@ -54,20 +45,8 @@ class _WIGooleMapsState extends State<WIGoogleMaps> {
   }
 
   void setMapStyle(String mapStyle) {
-    controllerMaps.setMapStyle(mapStyle);
+    controllerMaps!.setMapStyle(mapStyle);
+
+
   }
-
-  void locatePosition() async {
-    posicao_atual = await geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-
-
-    LatLng latLatPosition = LatLng(posicao_atual.latitude, posicao_atual.longitude);
-    //localizacao fim
-    CameraPosition cameraPosition =
-    new CameraPosition(target: latLatPosition, zoom: 14);
-    controller_Maps
-        .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
-  }
-
 }

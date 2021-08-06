@@ -3,13 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fogaca_app/Model/Pedido.dart';
-import 'package:fogaca_app/Notificacao/NotificacaoDialog.dart';
 import 'package:fogaca_app/Notificacao/PushNotificacao.dart';
 import 'package:fogaca_app/Widget/WICustomFutureBuilder.dart';
 import 'Tela_Passeio.dart';
 import 'package:fogaca_app/Providers/Firestore_Dados.dart';
-import 'package:fogaca_app/Widget/PedidoItem.dart';
-import 'package:fogaca_app/Widget/Toast.dart';
 import 'package:provider/provider.dart';
 
 import '../Page/Mapa_Home.dart';
@@ -23,18 +20,18 @@ class Pedidos_em_Entrega extends StatefulWidget{
 class Pedidos_em_EntregaState extends State<Pedidos_em_Entrega> {
 
   PushNotificacao pushNotificacao= PushNotificacao();
-  List<Pedido> pedidos;
+  List<Pedido> ?pedidos;
   Pedido detalheCorrida=Pedido();
-  Dados_usuario Pedido_Detalhe;
-  Color ColorButton=Colors.grey[700];
+  Dados_usuario ?Pedido_Detalhe;
+  Color?ColorButton=Colors.grey[700];
   @override
   Widget build(BuildContext context) {
     //pushNotificacao.initialize(context);
     FirebaseAuth auth = FirebaseAuth.instance;
-    User usuarioLogado =  auth.currentUser;
+    User? usuarioLogado =  auth.currentUser;
     return  WillPopScope(
       onWillPop: () {
-        _moveToSignInScreen(context);
+        return _moveToSignInScreen(context);
       },
       child:Scaffold(
         appBar: new AppBar(
@@ -52,14 +49,14 @@ class Pedidos_em_EntregaState extends State<Pedidos_em_Entrega> {
             colletion: "Pedidos",
             estado:"Aberto",
             msgvazio: "Nenhum pedido encontrado.",
-            id_usuario: usuarioLogado.uid
+          //  id_usuario: usuarioLogado!.uid
         ),
       ),
     );
   }
 
 
-  void _moveToSignInScreen(BuildContext context) =>
+  _moveToSignInScreen(BuildContext context) =>
       Navigator.pop(context);
 
 }

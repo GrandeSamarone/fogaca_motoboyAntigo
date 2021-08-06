@@ -4,8 +4,8 @@ import 'package:fogaca_app/Components/CPButtonVermelho.comp.dart';
 import 'package:fogaca_app/Components/CPTextField.dart';
 import 'package:fogaca_app/Components/CPTextFormField.dart';
 import 'package:fogaca_app/Controllers/LoginController.dart';
-import 'package:fogaca_app/Widget/Toast.dart';
 import 'package:fogaca_app/Widget/WIBusy.dart';
+import 'package:fogaca_app/Widget/WIToast.dart';
 
 import 'Tela_Login.dart';
 
@@ -16,7 +16,7 @@ class Tela_RedefinirSenha extends StatefulWidget {
 
 class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
   var busy = false;
-  final controllerLogin = new LoginController();
+  var controllerLogin ;
   final _formKey = GlobalKey<FormState>();
   TextEditingController email_Controller = TextEditingController();
 
@@ -118,14 +118,14 @@ class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
                       labeltext:"E-mail do Usuário",
 
                       validator: (value) {
-                        if (value.isEmpty) {
+                        if (value!.isEmpty) {
                           return 'Digite um e-mail.';
                         }else if(!value.contains("@")){
                           return 'Digite um e-mail válido.';
                         }else if(value.contains(" ")){
                           return '*erro: e-mail contém espaço.';
                         }
-                        return null;
+                        return "null";
                       },
                     ),
                     SizedBox(height: 30),
@@ -133,8 +133,8 @@ class _Tela_RedefinirSenhaState extends State<Tela_RedefinirSenha> {
                       text: "enviar",
                       width: double.infinity,
                       callback: () {
-                      if (_formKey.currentState.validate()) {
-                      _formKey.currentState.save();
+                      if (_formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
                         if(email_Controller.text.isNotEmpty){
                           Redefinirsenha();
                         }else{
