@@ -42,7 +42,6 @@ class HomeTabePage extends StatefulWidget{
 class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClientMixin {
 
   GoogleMapController controller_Maps;
-  StreamSubscription<Position>homepageStreamSubscription;
   final FirebaseMessaging firebaseMessaging=FirebaseMessaging.instance;
   var geolocator = Geolocator();
   Dados_usuario DadosMotoboy;
@@ -259,9 +258,6 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
 
       Atualizar_Online_Offline(false);
       ToastMensagem("Ative seu GPS Para continuar aceitando Pedidos...", context);
-      DeletarLocMotoboyDatabase();
-
-
 
     }
   }
@@ -284,13 +280,13 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
     }
   }
 
-  void getLocationLiveUpdates(){
+  Future<void> getLocationLiveUpdates()async{
 
-    homepageStreamSubscription=geolocator.getPositionStream().listen((Position position) {
+      geolocator.getPositionStream().listen((Position position) {
 
       posicao_atual=position;
       if(_OffouOnline){
-        Geofire.setLocation(_IDUsuario, position.latitude, position.longitude);
+         Geofire.setLocation(_IDUsuario, position.latitude, position.longitude);
       }
       LatLng latLng=LatLng(position.latitude, position.longitude);
 
@@ -302,15 +298,16 @@ class _HomeTabePageState extends State<HomeTabePage> with AutomaticKeepAliveClie
     });
   }
 
-  Future<void> DeletarLocMotoboyDatabase() {
-    //firebaseMessaging.unsubscribeFromTopic(_CodCity);
+  Future<void> DeletarLocMotoboyDatabase()async {
+    firebaseMessaging.unsubscribeFromTopic(_CodCity);
     //MotoboysOnline
-    DatabaseReference MotoboyRequest=FirebaseDatabase.instance.reference().child("MotoboysOnline")
+    DatabaseReference MotoboyRequest=FirebaseDatabase.instance.reference()
+        .child("MotoboysOnline")
         .child(_IDUsuario);
-    Geofire.removeLocation(_IDUsuario);
-    Geofire.stopListener();
-    MotoboyRequest.onDisconnect();
+   await Geofire.removeLocation(_IDUsuario);
+    await Geofire.stopListener();
     MotoboyRequest.remove();
+    MotoboyRequest.onDisconnect();
     MotoboyRequest=null;
 
   }
@@ -365,8 +362,8 @@ Future<void>Ficar_Online()async{
         _OffouOnline=true;
         Atualizar_Online_Offline(true);
         ToastMensagem("Buscando...", context);
-        // makeDriveOnlineNow();
-        // getLocationLiveUpdates();
+         makeDriveOnlineNow();
+         getLocationLiveUpdates();
         MethodChannel serviceChannel = MethodChannel("motoboy");
         serviceChannel.invokeMethod("startService");
   }else{
@@ -397,8 +394,8 @@ Future<void>Ficar_Offline()async{
     Wakelock.disable();
     _OffouOnline=false;
     Atualizar_Online_Offline(false);
-    // Geofire.stopListener();
-    //  DeletarLocMotoboyDatabase();
+    await Geofire.stopListener();
+      DeletarLocMotoboyDatabase();
     MethodChannel serviceChannel = MethodChannel("motoboy");
     serviceChannel.invokeMethod("stopService");
 }
