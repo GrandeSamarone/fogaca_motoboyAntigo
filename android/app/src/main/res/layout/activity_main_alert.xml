@@ -87,6 +87,16 @@
                 android:id="@+id/button_aceitar"
                 android:layout_width="match_parent"
                 android:layout_height="70dp"/>
+            <Button
+                android:textAllCaps="true"
+                android:text="Recusar"
+                android:fontFamily="@font/boltsemibold"
+                android:textSize="20dp"
+                android:layout_marginTop="20dp"
+                android:id="@+id/button_negar"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"/>
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

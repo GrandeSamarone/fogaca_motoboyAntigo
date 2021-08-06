@@ -365,7 +365,7 @@ Future<void>Ficar_Online()async{
         _OffouOnline=true;
         Atualizar_Online_Offline(true);
         ToastMensagem("Buscando...", context);
-        // makeDriveOnlineNow();
+         makeDriveOnlineNow();
         // getLocationLiveUpdates();
         MethodChannel serviceChannel = MethodChannel("motoboy");
         serviceChannel.invokeMethod("startService");

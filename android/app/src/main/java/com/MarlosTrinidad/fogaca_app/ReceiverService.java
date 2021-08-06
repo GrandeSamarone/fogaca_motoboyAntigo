@@ -16,6 +16,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -31,7 +32,9 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.MarlosTrinidad.fogaca_app.model.MotoboyAccount;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,6 +45,8 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 import com.google.gson.JsonObject;
 
 import org.json.JSONObject;
@@ -49,14 +54,17 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.github.florent37.assets_audio_player.notification.NotificationService.CHANNEL_ID;
 import static io.flutter.plugins.firebase.auth.Constants.TAG;
+import static io.flutter.plugins.firebase.auth.Constants.URL;
 
 public class ReceiverService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
     DatagramSocket server;
@@ -70,10 +78,12 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
     WindowManager.LayoutParams lp;
     MediaPlayer mp;
 
-
     FirebaseUser user;
     MotoboyAccount account;
+
     private final FirebaseFirestore db=FirebaseFirestore.getInstance();
+
+    FirebaseFunctions mFunctions;
     public ReceiverService() {
 
     }
@@ -89,17 +99,18 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
         super.onCreate();
 
         FirebaseApp.initializeApp(getBaseContext());
+        mFunctions = FirebaseFunctions.getInstance();
 
         if(FirebaseAuth.getInstance().getCurrentUser() != null){
-           user = FirebaseAuth.getInstance().getCurrentUser();
-           db.collection("user_motoboy").document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-               @Override
-               public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                   if(task.isSuccessful()){
-                       account = (MotoboyAccount) task.getResult().toObject(MotoboyAccount.class);
-                   }
-               }
-           });
+            user = FirebaseAuth.getInstance().getCurrentUser();
+            db.collection("user_motoboy").document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if(task.isSuccessful()){
+                        account = (MotoboyAccount) task.getResult().toObject(MotoboyAccount.class);
+                    }
+                }
+            });
         }
         hand = new Handler();
 
@@ -143,7 +154,7 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
                             JSONObject json = new JSONObject(data );
 
 
-                           createView(json);
+                            createView(json);
 
 
                         } catch (Exception e) {
@@ -179,6 +190,12 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
                     aceitarCorrida(lm, id_doc);
                 }
             });
+            lm.findViewById(R.id.button_negar).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fecharDialogo(lm);
+                }
+            });
             hand.post(() -> {
 
                 wm.addView(lm, lp);
@@ -195,7 +212,7 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
     public void playSong(){
         try{
 
-           // mp.reset();
+            // mp.reset();
 
             AssetFileDescriptor song = getResources().getAssets().openFd("somsino.mp3");
             mp.setDataSource(song.getFileDescriptor(), song.getStartOffset(), song.getLength());
@@ -204,8 +221,8 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
             mp.setOnCompletionListener(this);
             mp.prepareAsync();
 
-           // mp.prepare();
-          //  mp.start();
+            // mp.prepare();
+            //  mp.start();
 
         }catch (Exception e){
 
@@ -228,7 +245,7 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
             Notification notification = notificationBuilder.setOngoing(true)
                     .setSmallIcon(R.drawable.icon_semfundo)
-                     .setColor(getResources().getColor(R.color.pretoclaro))
+                    .setColor(getResources().getColor(R.color.pretoclaro))
                     .setContentTitle("Voçê está online")
                     .setPriority(NotificationManager.IMPORTANCE_MIN)
                     .setCategory(Notification.CATEGORY_SERVICE)
@@ -270,51 +287,47 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
     }
     public void listen(String id_doc, View view){
         try{
-        final DocumentReference doc = db.collection("Pedidos").document(id_doc);
-        doc.addSnapshotListener((snapshot, e) -> {
+            final DocumentReference doc = db.collection("Pedidos").document(id_doc);
+            doc.addSnapshotListener((snapshot, e) -> {
 
-           // Toast.makeText(getBaseContext(), "Escutando Pedido", Toast.LENGTH_SHORT).show();
-            if (e != null) {
-                Log.w(TAG, "Listen failed.", e);
-                return;
-            }
-              try{
-            if (snapshot != null && snapshot.exists() && snapshot.get("situacao") != null) {
-                Log.i("CORRIDA", snapshot.get("situacao").toString());
-               if(snapshot.get("situacao").toString().equals("Corrida Aceita")){
-                   if(!snapshot.get("boy_id").toString().equals(user.getUid())){
-                       fecharDialogo(view);
+                // Toast.makeText(getBaseContext(), "Escutando Pedido", Toast.LENGTH_SHORT).show();
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+                try{
+                    if (snapshot != null && snapshot.exists() && snapshot.get("situacao") != null) {
+                        Log.i("CORRIDA", snapshot.get("situacao").toString());
+                        if(snapshot.get("situacao").toString().equals("Corrida Aceita")){
 
-                       return;
-                   }else return;
-               }else if(snapshot.get("situacao").toString().equals("Cancelado")){
-                  fecharDialogo(view);
-                   return;
-               }
-            }
-              }catch (Exception erro){
-                  System.out.println("Error " + erro.getMessage());
-              }
-        });
-    }catch(Exception e){
+                            fecharDialogo(view);
+
+
+
+                        }else if(snapshot.get("situacao").toString().equals("Cancelado") || !snapshot.get("temp_id").toString().equals(user.getUid())){
+                            fecharDialogo(view);
+                            return;
+                        }
+                    }
+                }catch (Exception erro){
+                    System.out.println("Error " + erro.getMessage());
+                }
+            });
+        }catch(Exception e){
             System.out.println("Error " + e.getMessage());
         }
     }
 
     public void fecharDialogo(View lm){
         try{
-        wm.removeView(lm);
-        mp.stop();
-        mp.reset();
+            wm.removeView(lm);
+            mp.stop();
+            mp.reset();
         }catch(Exception e){
             System.out.println("Error " + e.getMessage());
         }
 
     }
-
-
-
-
 
     public void aceitarCorrida(View lm, String doc){
         //Verificando se tem net
@@ -325,6 +338,51 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
         //caso tenha ele deixa passar
         if(isConnected){
 
+            Map map = new HashMap<>();
+            map.put("motoboy",account.getId());
+            map.put("pedido", doc);
+
+
+            mFunctions.getHttpsCallable("aceitarCorrida").call(map).continueWith(new Continuation<HttpsCallableResult, Object>() {
+                @Override
+                public Object then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                    Log.e("ERROR LOG", task.getResult().getData().toString());
+                    if(task.isSuccessful()){
+                        fecharDialogo(lm);
+                        Toast.makeText(ReceiverService.this, "Corrida Aceita", Toast.LENGTH_SHORT).show();
+                    }else{
+
+                        Toast.makeText(ReceiverService.this, "Não foi possível aceitar esta corrida", Toast.LENGTH_SHORT).show();
+                    }
+                    return task.getResult().getData().toString();
+                }
+            });
+            /*
+            new Thread(){
+                @Override
+                public void run() {
+                    try {
+                        Looper.prepare();
+                        URL url = new URL("https://us-central1-fogaca-app.cloudfunctions.net/aceitarCorrida");
+                        HttpURLConnection http = (HttpURLConnection) url.openConnection();
+                        http.setRequestMethod("POST");
+                        http.setDoOutput(true);
+                        http.getOutputStream().write(map.toString().getBytes());
+                        http.getOutputStream().flush();
+                        if(http.getResponseCode() == 200){
+                            fecharDialogo(lm);
+                            Toast.makeText(ReceiverService.this, "Corrida Aceita", Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(ReceiverService.this, "Não foi possível aceitar a corrida", Toast.LENGTH_SHORT).show();
+                        }
+                    }catch (Exception e){
+                        Log.e("ERROR FIREBASE", e.toString());
+                    }
+                }
+            }.start();
+
+*/
+            /*
         Map<String, Object> map = new HashMap<>();
         map.put("situacao","Corrida Aceita");
         map.put("boy_telefone", account.getTelefone());
@@ -344,7 +402,9 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
                }else Toast.makeText(ReceiverService.this.getBaseContext(), "Não foi possível aceitar pedido", Toast.LENGTH_SHORT).show();
             }
         });
-    }else{
+
+             */
+        }else{
             Toast.makeText(ReceiverService.this.getBaseContext(), "Sem Conexão com a internet.", Toast.LENGTH_LONG).show();
 
         }
