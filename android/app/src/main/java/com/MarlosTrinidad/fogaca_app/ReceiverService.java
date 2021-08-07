@@ -292,7 +292,7 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
 
                 // Toast.makeText(getBaseContext(), "Escutando Pedido", Toast.LENGTH_SHORT).show();
                 if (e != null) {
-                    Log.w(TAG, "Listen failed.", e);
+                    Log.w("TAG LISTEN", "Listen failed.", e);
                     return;
                 }
                 try{
@@ -300,14 +300,13 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
                         Log.i("CORRIDA", snapshot.get("situacao").toString());
                         if(snapshot.get("situacao").toString().equals("Corrida Aceita")){
 
-                            fecharDialogo(view);
-
 
 
                         }else if(snapshot.get("situacao").toString().equals("Cancelado") || !snapshot.get("temp_id").toString().equals(user.getUid())){
                             fecharDialogo(view);
                             return;
                         }
+                        if(Integer.parseInt(snapshot.get("temp_status").toString()) == 0)fecharDialogo(view);
                     }
                 }catch (Exception erro){
                     System.out.println("Error " + erro.getMessage());
