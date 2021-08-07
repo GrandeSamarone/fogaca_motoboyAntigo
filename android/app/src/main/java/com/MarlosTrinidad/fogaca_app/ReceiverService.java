@@ -58,6 +58,7 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,7 +74,6 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
     byte[] receiveData = new byte[4024];
 
     WindowManager wm;
-
 
     WindowManager.LayoutParams lp;
     MediaPlayer mp;
@@ -298,11 +298,7 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
                 try{
                     if (snapshot != null && snapshot.exists() && snapshot.get("situacao") != null) {
                         Log.i("CORRIDA", snapshot.get("situacao").toString());
-                        if(snapshot.get("situacao").toString().equals("Corrida Aceita")){
-
-
-
-                        }else if(snapshot.get("situacao").toString().equals("Cancelado") || !snapshot.get("temp_id").toString().equals(user.getUid())){
+                        if(snapshot.get("situacao").toString().equals("Corrida Aceita") || snapshot.get("situacao").toString().equals("Cancelado") || !snapshot.get("temp_id").toString().equals(user.getUid())){
                             fecharDialogo(view);
                             return;
                         }
@@ -336,51 +332,49 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
 
         //caso tenha ele deixa passar
         if(isConnected){
+            try {
+                Map<String, Object> map = new HashMap<>();
+                map.put("motoboy", account.getId());
+                map.put("pedido", doc);
 
-            Map map = new HashMap<>();
-            map.put("motoboy",account.getId());
-            map.put("pedido", doc);
 
-
-            mFunctions.getHttpsCallable("aceitarCorrida").call(map).continueWith(new Continuation<HttpsCallableResult, Object>() {
-                @Override
-                public Object then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                    Log.e("ERROR LOG", task.getResult().getData().toString());
-                    if(task.isSuccessful()){
-                        fecharDialogo(lm);
-                        Toast.makeText(ReceiverService.this, "Corrida Aceita", Toast.LENGTH_SHORT).show();
-                    }else{
-
-                        Toast.makeText(ReceiverService.this, "Não foi possível aceitar esta corrida", Toast.LENGTH_SHORT).show();
-                    }
-                    return task.getResult().getData().toString();
+                StringBuilder postData = new StringBuilder();
+                for (Map.Entry<String, Object> param : map.entrySet()) {
+                    if (postData.length() != 0) postData.append('&');
+                    postData.append(URLEncoder.encode(param.getKey(), "UTF-8"));
+                    postData.append('=');
+                    postData.append(URLEncoder.encode(String.valueOf(param.getValue()), "UTF-8"));
                 }
-            });
-            /*
-            new Thread(){
-                @Override
-                public void run() {
-                    try {
-                        Looper.prepare();
-                        URL url = new URL("https://us-central1-fogaca-app.cloudfunctions.net/aceitarCorrida");
-                        HttpURLConnection http = (HttpURLConnection) url.openConnection();
-                        http.setRequestMethod("POST");
-                        http.setDoOutput(true);
-                        http.getOutputStream().write(map.toString().getBytes());
-                        http.getOutputStream().flush();
-                        if(http.getResponseCode() == 200){
-                            fecharDialogo(lm);
-                            Toast.makeText(ReceiverService.this, "Corrida Aceita", Toast.LENGTH_SHORT).show();
-                        }else{
-                            Toast.makeText(ReceiverService.this, "Não foi possível aceitar a corrida", Toast.LENGTH_SHORT).show();
+                byte[] postDataBytes = postData.toString().getBytes("UTF-8");
+
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            Looper.prepare();
+                            URL url = new URL("http://191.252.103.177:8089/accept");
+                            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+                            http.setRequestMethod("POST");
+                            http.setDoOutput(true);
+                            http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                            http.getOutputStream().write(postDataBytes);
+                            http.getOutputStream().flush();
+                            if (http.getResponseCode() == 200) {
+                                fecharDialogo(lm);
+                                Toast.makeText(ReceiverService.this, "Corrida Aceita", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(ReceiverService.this, "Não foi possível aceitar a corrida", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (Exception e) {
+                            Log.e("ERROR FIREBASE", e.toString());
                         }
-                    }catch (Exception e){
-                        Log.e("ERROR FIREBASE", e.toString());
                     }
-                }
-            }.start();
+                }.start();
 
-*/
+
+            }catch (Exception e){
+                Toast.makeText(getBaseContext(), "Não foi possível aceitar a corrida", Toast.LENGTH_SHORT).show();
+            }
             /*
         Map<String, Object> map = new HashMap<>();
         map.put("situacao","Corrida Aceita");
