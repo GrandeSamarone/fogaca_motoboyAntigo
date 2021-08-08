@@ -352,7 +352,7 @@ public class ReceiverService extends Service implements MediaPlayer.OnPreparedLi
                     public void run() {
                         try {
                             Looper.prepare();
-                            URL url = new URL("http://191.252.103.177:8089/accept");
+                            URL url = new URL("http://34.66.100.110:8089/accept");
                             HttpURLConnection http = (HttpURLConnection) url.openConnection();
                             http.setRequestMethod("POST");
                             http.setDoOutput(true);
